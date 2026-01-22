@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>CineBox - Movie Tickets &amp; Cinema Experience</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#e60a15",
+                        "background-light": "#f8f5f6",
+                        "background-dark": "#0f0809",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-300">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 w-full border-b border-white/10 bg-background-dark/80 backdrop-blur-md px-6 lg:px-20 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-8">
+        <!-- Logo and Search -->
+        <div class="flex items-center gap-8 flex-1">
+            <div class="flex items-center gap-3 text-primary">
+                <div class="size-8">
+                    <svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                        <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <h2 class="text-white text-2xl font-black leading-tight tracking-tight uppercase">CineBox</h2>
+            </div>
+            <div class="hidden md:flex flex-1 max-w-md">
+                <div class="relative w-full group">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
+                    <input class="w-full h-11 bg-white/5 border border-white/10 rounded-lg pl-11 pr-4 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" placeholder="Search movies, cinemas, actors..." type="text"/>
+                </div>
+            </div>
+        </div>
+        <!-- Navigation Links -->
+        <nav class="hidden lg:flex items-center gap-10">
+            <a class="text-sm font-semibold hover:text-primary transition-colors uppercase tracking-wider" href="#">Movies</a>
+            <a class="text-sm font-semibold hover:text-primary transition-colors uppercase tracking-wider" href="#">Cinemas</a>
+            <a class="text-sm font-semibold hover:text-primary transition-colors uppercase tracking-wider" href="#">News</a>
+        </nav>
+        <!-- Actions -->
+        <div class="flex items-center gap-4">
+            <a href="/login">
+                <button class="bg-primary hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm transition-all transform hover:scale-105">
+                    Login
+                </button>
+            </a>
+            <div class="size-10 rounded-full border-2 border-primary/20 bg-cover bg-center overflow-hidden cursor-pointer" data-alt="Default user avatar placeholder" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDDQVlqX-aE3zzMmdj3YUCfpgyN-UuIw7S4YKeo04VRUT62h4ILA3YGP2PjUDzzpCwFaGYSUcbUd6FrBh0CcV0wh9kbVntHVLsiXCIKaK_DLW5gMBjRY0AmHmlqyu9ZQYQvDvBD61ejOIedz8F5-D2oxQe_fvc1eYsnhA2NRAGtH925qgAdoZSvAtyQQmxweQ5BLJZdscukWoplmvToR04zHaY315UXZbVME8Q0lhwhsfKxBEJNULLKMTPLi6gVEBT2vL5ATglmAgYp');"></div>
+        </div>
+    </div>
+</header>
+<main class="max-w-7xl mx-auto pb-20 px-4 lg:px-0">
+    <!-- Hero Section -->
+    <section class="mt-8 mb-12">
+        <div class="relative overflow-hidden rounded-2xl h-[580px] group">
+            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" data-alt="Dune Part Two cinematic movie poster banner" style='background-image: linear-gradient(to right, rgba(15, 8, 9, 0.95) 0%, rgba(15, 8, 9, 0.4) 50%, rgba(15, 8, 9, 0.1) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuDitthABdVqFQpT2rsoBQV3tVohpPPI_RKLt5dN0w_TCydYeqJBW_g4pJtJkV2n-PuH3W55QfB23PG1AFh3EmXrIj5GpHxnTSl1aXSNAQHlJ5-GeNAR7hGt2bmTpVscN2qaj9DkY1Vd_WK0TVFnWOTsllPSaFYhoFmMJVyZCxrC-MKGcko_MCuIySqmf3zGk8o0hyGqrD6uwXAaDk9dmmVdtEFD25ec65KAKuOoIwIVqwh9qqekY4GkAbHLjsYYHF0K9kBMvx-Ehzdi");'>
+            </div>
+            <div class="absolute inset-0 flex flex-col justify-center px-10 lg:px-20 max-w-2xl gap-6">
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-primary/20 border border-primary/50 rounded-full w-fit">
+                    <span class="material-symbols-outlined text-primary text-sm">stars</span>
+                    <span class="text-primary text-xs font-bold uppercase tracking-widest">IMAX Exclusive</span>
+                </div>
+                <h1 class="text-white text-6xl lg:text-7xl font-black leading-none tracking-tight">Dune: <br/><span class="text-primary">Part Two</span></h1>
+                <p class="text-slate-300 text-lg leading-relaxed font-medium">
+                    Follow the mythic journey of Paul Atreides as he unites with Chani and the Fremen while on a warpath of revenge against the conspirators who destroyed his family.
+                </p>
+                <div class="flex items-center gap-4 pt-4">
+                    <button class="flex items-center gap-2 bg-primary hover:bg-red-700 text-white px-10 py-4 rounded-xl font-black text-lg transition-all shadow-lg shadow-primary/20">
+                        <span class="material-symbols-outlined">confirmation_number</span>
+                        Book Now
+                    </button>
+                    <button class="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-8 py-4 rounded-xl font-bold transition-all border border-white/10">
+                        <span class="material-symbols-outlined">play_circle</span>
+                        Watch Trailer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Now Showing Slider -->
+    <section class="mb-12">
+        <div class="flex items-center justify-between mb-8 px-4">
+            <h2 class="text-3xl font-black tracking-tight flex items-center gap-3">
+                <span class="w-2 h-8 bg-primary rounded-full"></span>
+                Now Showing
+            </h2>
+            <a class="text-primary font-bold hover:underline flex items-center gap-1" href="#">
+                View all <span class="material-symbols-outlined">chevron_right</span>
+            </a>
+        </div>
+        <div class="flex overflow-x-auto gap-6 no-scrollbar px-4 pb-4">
+            <!-- Movie Card 1 -->
+            <div class="flex-none w-64 group cursor-pointer">
+                <div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-4 shadow-xl">
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" data-alt="Oppenheimer movie poster" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC7BRktexkGfNnzI1Jm6jdf0y3nuOnSz9nMOHOI9aqHyO7PtJuNUT2gruyMVtFycW7ddqb--QxeWXcPNDVOLyvKMaFgS_1Bu1tn6Xp62pTVLUDLb49Oq-tsDPUiQHJ8fUewJ8adpro4bM27-Ik_2FuK1L1jjgRj6eSF8bDdIU16mkERGQECa4vt3RgjQ-tu8s8y6gr_4KFkUAX0D7XjQ_6Xx0t7KUvqRjwiG7CACecoLWmA-ZX9vBVgJNgU7z-aRje2b7u8GkkMF8_l");'></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                        <button class="w-full bg-primary py-3 rounded-lg font-bold text-white shadow-lg">Quick Book</button>
+                    </div>
+                    <div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2 py-1 rounded-md flex items-center gap-1">
+                        <span class="material-symbols-outlined text-yellow-500 text-[16px] fill-current">star</span>
+                        <span class="text-xs font-bold text-white">8.9</span>
+                    </div>
+                </div>
+                <h3 class="font-bold text-lg mb-1 group-hover:text-primary transition-colors">Oppenheimer</h3>
+                <p class="text-slate-500 text-sm font-medium">History, Drama • 3h 1min</p>
+            </div>
+            <!-- Movie Card 2 -->
+            <div class="flex-none w-64 group cursor-pointer">
+                <div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-4 shadow-xl">
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" data-alt="Barbie movie poster" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDoU78PEozRrM30QFuzITe9hbEb9Db28zarQhcwuTqeoqrynKo3YWsox_rR6ArTeKwzmVDDkhR7PJbp8Vbz-98PC0YKnZ4jLzW_uMyulGH6mxTdgxFzn6O0wgkDZG7VbcYJ2E-B0R97WpDI9tqjwzsN4BOkEBNKheCmnjLBUqneZSfljkQ3Xe5ttFL7EDx-I9oopdoKrV4Zx6Gp_uafFzCqMgYe2vq83l6ZXUYY4Ewh-XM46huBzvp1Dnacaio3uS66OvYf-aKUur_G");'></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                        <button class="w-full bg-primary py-3 rounded-lg font-bold text-white shadow-lg">Quick Book</button>
+                    </div>
+                    <div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2 py-1 rounded-md flex items-center gap-1">
+                        <span class="material-symbols-outlined text-yellow-500 text-[16px] fill-current">star</span>
+                        <span class="text-xs font-bold text-white">7.5</span>
+                    </div>
+                </div>
+                <h3 class="font-bold text-lg mb-1 group-hover:text-primary transition-colors">Barbie</h3>
+                <p class="text-slate-500 text-sm font-medium">Comedy, Adventure • 1h 54min</p>
+            </div>
+            <!-- Movie Card 3 -->
+            <div class="flex-none w-64 group cursor-pointer">
+                <div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-4 shadow-xl">
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" data-alt="Spider-Man movie poster" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBB_J6Wu_C-VR7Oh2gnj3g6gu-4ZXyMsC-3q4jqzHfYXQni-Tuz3qjzb8pQ9Kofracfa_q6_GnF6DadzBm_PgbMLvEcTaB9cgM5QwUAm536io2EUDevQfsEkx_7H40CaOFYPLutE8gWygB8j_FRWrq_W6-PkAoHYqKM3Qs_sOYjaRH2cbfzb_BKRp68z4dvatHLHnmccWV4qttuE5_KpqNBsAAn2zq3fq4gKjJdhhKi8kZF39mG-zEWN6c1u-CgF140cARDZsX3RsMO");'></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                        <button class="w-full bg-primary py-3 rounded-lg font-bold text-white shadow-lg">Quick Book</button>
+                    </div>
+                    <div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2 py-1 rounded-md flex items-center gap-1">
+                        <span class="material-symbols-outlined text-yellow-500 text-[16px] fill-current">star</span>
+                        <span class="text-xs font-bold text-white">9.0</span>
+                    </div>
+                </div>
+                <h3 class="font-bold text-lg mb-1 group-hover:text-primary transition-colors">Spider-Man: Across the Universe</h3>
+                <p class="text-slate-500 text-sm font-medium">Animation, Action • 2h 20min</p>
+            </div>
+            <!-- Movie Card 4 -->
+            <div class="flex-none w-64 group cursor-pointer">
+                <div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-4 shadow-xl">
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" data-alt="The Batman movie poster" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBzm2JB7SXlI9S4P_dIJAjkyEG7KKjhCUayCK3cnz2_LyxxJRSahHBICjTjLflJqZSuhpsn0QPdSk5x-tKDXXpkrHYq3Hw_0Vef6k2nwmDaYenuBIF7nQ-W4q0dMsXJdcMLugKLLqNM0_PgDVXuXj4skF9I78hsJCeIOZX5RTC2tWk_T-0ZNIYjVn8xpL66RV-r7r8qhw9TVhE3BR5ljWNfH2crrPHZshGZSJ1REHGsvuP9_WgYD5G1kEca_gEmJTsRP5DH8xXZc1Ww");'></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                        <button class="w-full bg-primary py-3 rounded-lg font-bold text-white shadow-lg">Quick Book</button>
+                    </div>
+                    <div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2 py-1 rounded-md flex items-center gap-1">
+                        <span class="material-symbols-outlined text-yellow-500 text-[16px] fill-current">star</span>
+                        <span class="text-xs font-bold text-white">8.5</span>
+                    </div>
+                </div>
+                <h3 class="font-bold text-lg mb-1 group-hover:text-primary transition-colors">The Batman</h3>
+                <p class="text-slate-500 text-sm font-medium">Action, Crime • 2h 56min</p>
+            </div>
+            <!-- Movie Card 5 -->
+            <div class="flex-none w-64 group cursor-pointer">
+                <div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-4 shadow-xl">
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" data-alt="Interstellar movie poster" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC1M3Nv1ChVoic3eO6CS_pzwEf1Hr9GIgWUDzb42jLKPm44WfFlLIYlSObAQDajqI3FezBoIj1uir8aU_tiWG84jUgz2FmZRx9gMYHe-6leaFbx5vsXIeTtMxIPaFpNGUxwKNmrXVpyTeUHVK0vkL9lwljKJ24Wxlg33vCN0O-mGFlJSlJRszo7kHAeFRmY3B2nuKIK_wmvWS_vMol4jIZHqQE3IH5Ht-S0tm5BLohK4gk3IJXf-F58V1HTEK4C3QRRyCNmCQD7dStH");'></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                        <button class="w-full bg-primary py-3 rounded-lg font-bold text-white shadow-lg">Quick Book</button>
+                    </div>
+                    <div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2 py-1 rounded-md flex items-center gap-1">
+                        <span class="material-symbols-outlined text-yellow-500 text-[16px] fill-current">star</span>
+                        <span class="text-xs font-bold text-white">8.7</span>
+                    </div>
+                </div>
+                <h3 class="font-bold text-lg mb-1 group-hover:text-primary transition-colors">Interstellar</h3>
+                <p class="text-slate-500 text-sm font-medium">Sci-Fi, Adventure • 2h 49min</p>
+            </div>
+        </div>
+    </section>
+    <!-- Coming Soon Slider -->
+    <section class="mb-12">
+        <div class="flex items-center justify-between mb-8 px-4">
+            <h2 class="text-3xl font-black tracking-tight flex items-center gap-3">
+                <span class="w-2 h-8 bg-primary rounded-full"></span>
+                Coming Soon
+            </h2>
+        </div>
+        <div class="flex overflow-x-auto gap-6 no-scrollbar px-4 pb-4">
+            <!-- Coming Soon Card 1 -->
+            <div class="flex-none w-64 group">
+                <div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-4 shadow-xl border border-white/5">
+                    <div class="absolute inset-0 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-110" data-alt="Upcoming Movie 1 poster" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC6LVePnoF07h3RmerXeq-pNSp9isO9lGPjOJObrEUhDm7ua-Nl35iWdkbVFZUNaaleD9NyGyoaQYLT69jjijmwKSjKBc36lLLLjixWJG7C5rcKP06xLrG_OFmuQO9Oezkoy08FE_HjwEG3Lbyl73OB8iXzFh9Owm39_Svp7sfpfpGxp5hlRMhoGl8FkXpbBmfFWwmDJKSPMjFLxOmJnduw8FAjpRPIsIhD1xce1UlW8xVvHYJJK35w7-srtIEbxky8dtecjt7MoUDS");'></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent">
+                        <p class="text-primary text-xs font-black tracking-widest uppercase">Dec 15, 2024</p>
+                    </div>
+                </div>
+                <h3 class="font-bold text-lg mb-1 group-hover:text-primary transition-colors">Deadpool &amp; Wolverine</h3>
+                <p class="text-slate-500 text-sm font-medium">Action, Comedy</p>
+            </div>
+            <!-- Coming Soon Card 2 -->
+            <div class="flex-none w-64 group">
+                <div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-4 shadow-xl border border-white/5">
+                    <div class="absolute inset-0 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-110" data-alt="Upcoming Movie 2 poster" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAjpfTwOnyqE7VMJ2GJhjHH6OshvPgH0VKzAS3DDH0o1Wf_yX-0x8sKx0E6jYbgOqz_jwNg8g7_5NPIQ2AsVfrOmbuBzgj9KLeZxK7OBCvjIjuJTyiKyz-Q8Ob0CzZ9VS-xDei89xelcXWY9lf2KUMzHSRxEtRTnsymOYWM5XYkKdqa9c_hR7jhvEIodZreJUPBNpwVFNJm-SZVEezE4y3SQRXq7CFxuVi-1aoNzx8yqFnL2IAN1Dj-8lO-a0kBqK2vVZhAbOUiDUAS");'></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent">
+                        <p class="text-primary text-xs font-black tracking-widest uppercase">Dec 20, 2024</p>
+                    </div>
+                </div>
+                <h3 class="font-bold text-lg mb-1 group-hover:text-primary transition-colors">Gladiator II</h3>
+                <p class="text-slate-500 text-sm font-medium">Action, Drama</p>
+            </div>
+            <!-- Coming Soon Card 3 -->
+            <div class="flex-none w-64 group">
+                <div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-4 shadow-xl border border-white/5">
+                    <div class="absolute inset-0 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-110" data-alt="Upcoming Movie 3 poster" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD5Y_EWVs4Mm3KbYYc6_cWoms5_id5QQ8r2v3m6c5Xgs8Tmmr0zb7_BVKfGSmznH7QGK0LebHy4-XqxbE9dU5QtMvjNQ_5erf4FWcb3ODkb3rS5sbVdFzExy2aAs4y0ZMzf5eUJJogPXElqdo0ifEZDRfOgN9NFWZ4UYtkNjFplMeuNreaZb8HSfkvXcPz1UATVhb0CppZzjBR8jozuyAuQmlNl8dqNkyNdb_OVJHHj3pdeN9d7JGSQdXugsfZe13pb5PVutPwJj0HU");'></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent">
+                        <p class="text-primary text-xs font-black tracking-widest uppercase">Jan 10, 2025</p>
+                    </div>
+                </div>
+                <h3 class="font-bold text-lg mb-1 group-hover:text-primary transition-colors">Joker: Folie à Deux</h3>
+                <p class="text-slate-500 text-sm font-medium">Crime, Thriller</p>
+            </div>
+            <!-- Coming Soon Card 4 -->
+            <div class="flex-none w-64 group">
+                <div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-4 shadow-xl border border-white/5">
+                    <div class="absolute inset-0 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-110" data-alt="Upcoming Movie 4 poster" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBYZOWsois7R8iA7YD2_OiapXsYWcWOxkimW4B2HTZxcBuHCmlpm-PdEdZrsohf-zSRvaT7KdJd-TKp3CrYqm7dGPGOtQN7SvKYvh7GNU-UXD71yT1279Iptfz-KJGqx3im-Wj331lsF-NExHubLZarzgtfQN14fudom00H8-nybn_5uJYQZMPXy985oPF8LtNlQHKTHwz35i0A6cwMIpKZEdKVVDuG8ezjOJJCEPbrdPRpMbXQfaRt2J_w2NbS6hDkeNJrDykEFo1Q");'></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent">
+                        <p class="text-primary text-xs font-black tracking-widest uppercase">Feb 14, 2025</p>
+                    </div>
+                </div>
+                <h3 class="font-bold text-lg mb-1 group-hover:text-primary transition-colors">Wicked</h3>
+                <p class="text-slate-500 text-sm font-medium">Musical, Fantasy</p>
+            </div>
+        </div>
+    </section>
+</main>
+<!-- Simple Footer -->
+<footer class="bg-white/5 border-t border-white/10 pt-16 pb-8">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+            <div class="col-span-1 md:col-span-1">
+                <div class="flex items-center gap-3 text-primary mb-6">
+                    <div class="size-6">
+                        <svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                            <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <h2 class="text-white text-xl font-black leading-tight tracking-tight uppercase">CineBox</h2>
+                </div>
+                <p class="text-slate-400 text-sm leading-relaxed mb-6">The ultimate destination for cinema lovers. Experience the magic of movies with CineBox.</p>
+                <div class="flex items-center gap-4">
+                    <a class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors text-white" href="#">
+                        <span class="material-symbols-outlined text-lg">public</span>
+                    </a>
+                    <a class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors text-white" href="#">
+                        <span class="material-symbols-outlined text-lg">share</span>
+                    </a>
+                    <a class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors text-white" href="#">
+                        <span class="material-symbols-outlined text-lg">mail</span>
+                    </a>
+                </div>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-6">Quick Links</h4>
+                <ul class="space-y-4 text-slate-400 text-sm">
+                    <li><a class="hover:text-primary transition-colors" href="#">About Us</a></li>
+                    <li><a class="hover:text-primary transition-colors" href="#">Cinemas near you</a></li>
+                    <li><a class="hover:text-primary transition-colors" href="#">Bulk Bookings</a></li>
+                    <li><a class="hover:text-primary transition-colors" href="#">Gift Cards</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-6">Support</h4>
+                <ul class="space-y-4 text-slate-400 text-sm">
+                    <li><a class="hover:text-primary transition-colors" href="#">Help Center</a></li>
+                    <li><a class="hover:text-primary transition-colors" href="#">Terms of Service</a></li>
+                    <li><a class="hover:text-primary transition-colors" href="#">Privacy Policy</a></li>
+                    <li><a class="hover:text-primary transition-colors" href="#">FAQ</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-6">Newsletter</h4>
+                <p class="text-slate-400 text-sm mb-4">Stay updated with the latest releases.</p>
+                <div class="flex gap-2">
+                    <input class="bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-sm w-full focus:outline-none focus:ring-1 focus:ring-primary" placeholder="Email address" type="email"/>
+                    <button class="bg-primary px-4 py-2 rounded-lg text-white font-bold text-sm">Join</button>
+                </div>
+            </div>
+        </div>
+        <div class="pt-8 border-t border-white/10 text-center text-slate-500 text-xs">
+            © 2024 CineBox Entertainment. All rights reserved.
+        </div>
+    </div>
+</footer>
+</body></html>
