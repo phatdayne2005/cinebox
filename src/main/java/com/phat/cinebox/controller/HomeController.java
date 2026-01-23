@@ -7,15 +7,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class HomeController {
     @GetMapping("/")
-    public String home(Model model) {
+    public String getHomePage(Model model) {
         return "homepage";
     }
+
     @GetMapping("/login")
-    public String login(){
+    public String getLoginPage(Model model){
         return "login";
     }
+
     @GetMapping("/register")
-    public String register(){
+    public String getRegisterPage(Model model){
         return "register";
     }
 }
