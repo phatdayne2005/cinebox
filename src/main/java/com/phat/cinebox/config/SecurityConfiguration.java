@@ -4,6 +4,7 @@ import com.phat.cinebox.service.AuthenticationService;
 import com.phat.cinebox.service.UserDetailServiceCustomize;
 import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,6 +36,7 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
     private final UserDetailServiceCustomize  userDetailServiceCustomize;
+    private final JwtDecoderConfiguration jwtDecoderConfiguration;
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -44,7 +46,7 @@ public class SecurityConfiguration {
                                 DispatcherType.INCLUDE)
                         .permitAll()
 
-                        .requestMatchers("/", "/auth/**", "/login", "/api/**", "/create-user", "/register", "/css/**", "/js/**",
+                        .requestMatchers("/", "/auth/**", "/login", "/create-user", "/register", "/css/**", "/js/**",
                                 "/images/**")
                         .permitAll()
 
@@ -53,18 +55,11 @@ public class SecurityConfiguration {
 
                         .anyRequest().authenticated())
 
-                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
+                .oauth2ResourceServer((oauth2) -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoderConfiguration)))
 
                 .formLogin(form -> form.loginPage("/login"));
 
         return http.build();
-    }
-
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        String key = "1234567890";
-        SecretKey secretKey = new SecretKeySpec(key.getBytes(), "HS512");
-        return NimbusJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS512).build();
     }
 
     @Bean
