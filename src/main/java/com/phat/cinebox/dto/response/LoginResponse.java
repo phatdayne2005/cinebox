@@ -9,5 +9,4 @@ import lombok.Setter;
 @Builder
 public class LoginResponse {
     private String accessToken;
-    private String refreshToken;
 }

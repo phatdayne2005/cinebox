@@ -11,13 +11,12 @@ import java.util.concurrent.TimeUnit;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@RedisHash("RedisHash")
+@RedisHash("RedisValidRefreshToken")
 @Builder
-public class RedisToken {
+public class RedisValidRefreshToken {
     @Id
     private String jwtId;
 
     @TimeToLive(unit = TimeUnit.MILLISECONDS)
     private Long expirationTime;
-
 }

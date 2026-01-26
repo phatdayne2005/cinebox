@@ -10,6 +10,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -33,5 +35,9 @@ public class UserService {
         userRepository.save(user);
 
         return UserCreateResponse.builder().email(user.getEmail()).build();
+    }
+
+    public Optional<User> findByEmail(String email) {
+        return this.userRepository.findByEmail(email);
     }
 }
