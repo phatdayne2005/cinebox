@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>CineBox - Checkout and Payment</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#e60a15",
+                        "background-light": "#f8f5f6",
+                        "background-dark": "#141414",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .form-input:focus { border-color: #e60a15 !important; ring-color: #e60a15 !important; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-white min-h-screen">
+<div class="layout-container flex flex-col min-h-screen">
+    <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-white/10 px-10 py-4 bg-[#1a1a1a] sticky top-0 z-50">
+        <a class="flex items-center gap-2 group transition-opacity hover:opacity-90" href="/">
+            <div class="size-8 text-primary">
+                <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <g clip-path="url(#clip0_6_330)">
+                        <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                    </g>
+                    <defs><clipPath id="clip0_6_330"><rect fill="white" height="48" width="48"></rect></clipPath></defs>
+                </svg>
+            </div>
+            <h2 class="text-white text-2xl font-black leading-tight tracking-tighter">CINEBOX</h2>
+        </a>
+        <div class="flex flex-1 justify-end gap-8 items-center">
+            <div class="flex items-center gap-9">
+                <a class="text-gray-400 hover:text-white text-sm font-medium transition-colors" href="#">Movies</a>
+                <a class="text-gray-400 hover:text-white text-sm font-medium transition-colors" href="#">Theaters</a>
+                <a class="text-gray-400 hover:text-white text-sm font-medium transition-colors" href="#">Offers</a>
+            </div>
+            <div class="flex gap-4 items-center pl-4 border-l border-white/10">
+                <button class="flex items-center justify-center rounded-lg h-10 w-10 bg-white/5 hover:bg-white/10 transition-colors">
+                    <span class="material-symbols-outlined text-white text-[20px]">shopping_cart</span>
+                </button>
+                <button class="flex items-center justify-center rounded-lg h-10 w-10 bg-white/5 hover:bg-white/10 transition-colors">
+                    <span class="material-symbols-outlined text-white text-[20px]">account_circle</span>
+                </button>
+            </div>
+        </div>
+    </header>
+    <main class="flex-1 max-w-7xl mx-auto w-full px-6 py-10 lg:px-10">
+        <div class="mb-8 flex items-center justify-between">
+            <div class="flex flex-col gap-1">
+                <h1 class="text-white text-4xl font-black leading-tight tracking-[-0.033em]">Checkout</h1>
+                <p class="text-gray-400 text-base font-normal">Complete your payment to secure your seats</p>
+            </div>
+            <a class="flex items-center gap-2 text-primary font-semibold text-sm hover:underline" href="#">
+                <span class="material-symbols-outlined text-sm">arrow_back</span>
+                Back to Seat Selection
+            </a>
+        </div>
+        <div class="flex flex-col lg:flex-row gap-12">
+            <div class="flex-1 flex flex-col gap-8">
+                <div class="bg-[#1a1a1a] rounded-xl p-6 border border-white/5">
+                    <h3 class="text-lg font-bold mb-6">Payment Method</h3>
+                    <div class="flex border-b border-white/10 gap-8 mb-8 overflow-x-auto">
+                        <a class="flex flex-col items-center justify-center border-b-[3px] border-primary text-white gap-2 pb-4 px-2" href="#">
+                            <span class="material-symbols-outlined">credit_card</span>
+                            <p class="text-sm font-bold tracking-[0.015em] whitespace-nowrap">Credit/Debit Card</p>
+                        </a>
+                        <a class="flex flex-col items-center justify-center border-b-[3px] border-transparent text-gray-500 hover:text-white gap-2 pb-4 px-2 transition-colors" href="#">
+                            <span class="material-symbols-outlined">account_balance_wallet</span>
+                            <p class="text-sm font-bold tracking-[0.015em] whitespace-nowrap">Digital Wallets</p>
+                        </a>
+                        <a class="flex flex-col items-center justify-center border-b-[3px] border-transparent text-gray-500 hover:text-white gap-2 pb-4 px-2 transition-colors" href="#">
+                            <span class="material-symbols-outlined">payments</span>
+                            <p class="text-sm font-bold tracking-[0.015em] whitespace-nowrap">PayPal</p>
+                        </a>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2">
+                            <label class="flex flex-col">
+                                <p class="text-white text-sm font-semibold pb-2">Cardholder Name</p>
+                                <input class="form-input w-full rounded-lg text-white border border-white/10 bg-black/40 focus:border-primary focus:ring-0 h-14 placeholder:text-gray-600 p-4 text-base" placeholder="e.g. Alexander Hamilton"/>
+                            </label>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="flex flex-col">
+                                <p class="text-white text-sm font-semibold pb-2">Card Number</p>
+                                <div class="relative">
+                                    <input class="form-input w-full rounded-lg text-white border border-white/10 bg-black/40 focus:border-primary focus:ring-0 h-14 placeholder:text-gray-600 p-4 pr-12 text-base" placeholder="0000 0000 0000 0000"/>
+                                    <div class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">
+                                        <span class="material-symbols-outlined">credit_card</span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="flex flex-col">
+                                <p class="text-white text-sm font-semibold pb-2">Expiry Date</p>
+                                <input class="form-input w-full rounded-lg text-white border border-white/10 bg-black/40 focus:border-primary focus:ring-0 h-14 placeholder:text-gray-600 p-4 text-base" placeholder="MM/YY"/>
+                            </label>
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="flex flex-col">
+                                <p class="text-white text-sm font-semibold pb-2">CVV</p>
+                                <div class="relative">
+                                    <input class="form-input w-full rounded-lg text-white border border-white/10 bg-black/40 focus:border-primary focus:ring-0 h-14 placeholder:text-gray-600 p-4 pr-12 text-base" placeholder="•••" type="password"/>
+                                    <div class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 cursor-help" title="3-digit security code on back of card">
+                                        <span class="material-symbols-outlined text-[20px]">help</span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mt-8 flex items-center gap-3">
+                        <input class="w-5 h-5 rounded border-white/10 bg-black text-primary focus:ring-primary focus:ring-offset-black" id="save-card" type="checkbox"/>
+                        <label class="text-sm text-gray-300" for="save-card">Save this card for faster checkout next time</label>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 p-4 rounded-xl bg-primary/10 border border-primary/20">
+                    <div class="bg-primary/20 p-2 rounded-full">
+                        <span class="material-symbols-outlined text-primary">verified_user</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-white">Secure Checkout</p>
+                        <p class="text-xs text-gray-400">Your connection is encrypted and payment details are never stored on our servers.</p>
+                    </div>
+                </div>
+            </div>
+            <aside class="w-full lg:w-[400px]">
+                <div class="lg:sticky lg:top-28 bg-[#1a1a1a] rounded-xl border border-white/5 overflow-hidden shadow-2xl">
+                    <div class="p-6 border-b border-white/10 bg-gradient-to-r from-black/40 to-transparent">
+                        <h3 class="text-lg font-bold">Order Summary</h3>
+                    </div>
+                    <div class="p-6 flex flex-col gap-6">
+                        <div class="flex gap-4">
+                            <div class="w-20 h-28 rounded-md bg-gray-800 overflow-hidden flex-shrink-0 shadow-lg">
+                                <img alt="Cinema movie poster of interstellar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOIK2T50YaA6LivsYvqsOE-hqUtnFSoAvSLJJOmps8-StMl-cIi10p_tPfpXg9EhzA4YXjJdSxUFpVgx3AnoXj-IQHKjTCLiPIm6y21-KKiJeMz6PQeJX7cDU9-JoaDh_S4BB393emT8kNjujT5HiSj6kHPskAg2Pa8xcJspvTiZv5Y_hrRKBTHV1ehiB0ltRewD7VSAxufdgBTa1qP-cTp9g9ga3y9RtpbzpimXOh2RKFsMkIkbhlxRV2Wpy-gXa2Fs8Nrf1c4oio"/>
+                            </div>
+                            <div class="flex flex-col justify-center">
+                                <h4 class="text-white font-bold text-lg leading-tight mb-1">DUNE: PART TWO</h4>
+                                <p class="text-primary text-xs font-bold uppercase tracking-wider mb-2">IMAX 4K EXPERIENCE</p>
+                                <div class="flex flex-col gap-1 text-xs text-gray-400">
+                                    <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_month</span> Sunday, Oct 22</span>
+                                    <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> 07:30 PM • 2h 46m</span>
+                                    <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">location_on</span> CineBox Downtown, Hall 4</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-4 pt-4 border-t border-white/5">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm font-medium text-white">Premium Seats</p>
+                                    <p class="text-xs text-gray-500">Row J: J12, J13</p>
+                                </div>
+                                <p class="text-sm font-bold">$36.00</p>
+                            </div>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm font-medium text-white">Large Combo</p>
+                                    <p class="text-xs text-gray-500">1x Popcorn, 2x Soda</p>
+                                </div>
+                                <p class="text-sm font-bold">$18.50</p>
+                            </div>
+                            <div class="flex justify-between items-center text-gray-500">
+                                <p class="text-sm">Convenience Fee</p>
+                                <p class="text-sm font-medium">$2.40</p>
+                            </div>
+                        </div>
+                        <div class="pt-6 border-t border-white/10">
+                            <div class="flex justify-between items-end mb-8">
+                                <div class="flex flex-col">
+                                    <p class="text-gray-400 text-xs font-bold uppercase tracking-widest">Total Amount</p>
+                                    <p class="text-xs text-primary">All taxes included</p>
+                                </div>
+                                <p class="text-3xl font-black text-white">$56.90</p>
+                            </div>
+                            <button class="w-full bg-primary hover:bg-red-700 text-white font-black py-4 rounded-lg flex items-center justify-center gap-3 transition-all transform active:scale-[0.98] shadow-lg shadow-primary/20">
+                                <span class="material-symbols-outlined">lock</span>
+                                PAY $56.90 NOW
+                            </button>
+                            <p class="text-center text-[10px] text-gray-500 mt-4 leading-relaxed">
+                                By clicking 'Pay Now' you agree to our Terms of Service and Refund Policy. Your tickets will be sent to your registered email.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+    <footer class="mt-auto border-t border-white/10 py-8 px-10 bg-[#0d0d0d]">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-4">
+                <a class="flex items-center gap-2 group opacity-50 hover:opacity-100 transition-opacity" href="/">
+                    <div class="size-4 text-white">
+                        <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor"></path>
+                        </svg>
+                    </div>
+                    <span class="text-white text-xs font-black tracking-tight">CINEBOX</span>
+                </a>
+                <p class="text-gray-500 text-xs border-l border-white/10 pl-4">© 2024 CineBox Entertainment. All rights reserved.</p>
+            </div>
+            <div class="flex gap-6">
+                <img alt="Visa Card Logo" class="h-6 opacity-60 grayscale hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfR8Z2mtNq4mQom5BVZ-dtWpghmAeu8_FWvXrw0lLZg9h6G268N_1ppN2GzbuKNgIQSCAdEJb7uJ9Se-HnwGEWZ6Gh93oPh7nK_8nZLnDPn2l59UmSzCE8_H2aAJeCi9N5VuZt6Q-gLijwCJI1j2Of9wmd7-NXpwmJUaNjYpzi6sKob9yoUJ-ubLmeZfEhQfNdcusm7nxRNh8lVNFloM2-Z7JUbaWxCoYWrbEyz36V5CCbTPgMOl2yZIs1sAyjlEl34YqD3rv7XqQI"/>
+                <img alt="Mastercard Logo" class="h-6 opacity-60 grayscale hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIcZPeTFRqVOeYauIbLFJ4uUjFGUgk58BuLMtWmXBWFRRlJeRlZAR45ytCwbeGJRdqlCOt--M0_dhACfS1rgeAtDnQfY60Q5CBbKJtUVcEw3Vy2ByTOxAxCR8NfPvsOnewSMSzsTbYxSteI01dQPecpUPY8V7wlr6uB_ba5SePqT1BSN80TC-qWIEweSpsncn7nRfLtOBO5wwq-fYuTObOQZS5PteQbKI5bIt_QYSudwSLEnCeY970TM06qbEJJ-JMNWIWF5C2Xywl"/>
+                <img alt="PayPal Logo" class="h-6 opacity-60 grayscale hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCt013RI6D779QOT1_wWvkIKYer2ZX7fuh0ZNn7xh4Qk3AUK8Za4kRUGcPbS483za5zvO7AGl33Rrzw-xO3511yrnizU3MuekenwUlbwb_xVglpLvHOF1vM0m9mX6Spda_bBQ4_0wkSONV5VvxoLSP0jthV7Dpx7ak7kO315tYIs4XZQJLzGI13ygPFbuGlyfOFpZEES3J1VKJCzXOb9Cwucwh_wgjGpU73P9aCmXEk2XUwgs3V_8DjYfdhtVc_oerpudn7DnrdDKGV"/>
+                <img alt="Apple Pay Logo" class="h-6 opacity-60 grayscale hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_EvRc8GxhwDX0k445aMAop8Amn1YAYJ3lnkKX4JD-Y6sBhp6SIb6MSXThMwG4FiLdqEgo-AwjZlblIuDpatMLeTLZotXv0gBpMfoXCXSbfIBGDkZit2S_CeI1C8q2GwAlT5gKWaMXXXtc1r669GSPU6qvWFeHD5ug_aUTJlQDDSxi9G7DPCgfgAwvd2oAMwtUqomPb945YEoZ1JmlM9I8HOoYjYf1gqJJw9YEiNGQTJJqF5wywdM7LDDmKKDeVzPDckPendu9xEb8"/>
+            </div>
+        </div>
+    </footer>
+</div>
+
+</body></html>

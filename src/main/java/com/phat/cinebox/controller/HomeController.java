@@ -20,4 +20,9 @@ public class HomeController {
     public String getRegisterPage(Model model){
         return "register";
     }
+
+    @GetMapping("/checkout")
+    public String getCheckoutPage(Model model){
+        return "checkout";
+    }
 }
