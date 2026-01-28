@@ -27,6 +27,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.thymeleaf.extras.springsecurity6.dialect.SpringSecurityDialect;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -47,7 +48,7 @@ public class SecurityConfiguration {
                                 DispatcherType.INCLUDE)
                         .permitAll()
 
-                        .requestMatchers("/", "/auth/**", "/login", "/checkout", "/create-user", "/register", "/css/**", "/js/**",
+                        .requestMatchers("/", "/auth/**", "/login", "/create-user", "/register", "/error", "/css/**", "/js/**",
                                 "/images/**")
                         .permitAll()
 
@@ -58,7 +59,16 @@ public class SecurityConfiguration {
 
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
-                .formLogin(form -> form.loginPage("/login"));
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .permitAll())
+
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            String currentUrl = request.getRequestURI();
+                            response.sendRedirect("/login?continue=" + currentUrl);
+                        })
+                );
 
         return http.build();
     }
@@ -73,5 +83,10 @@ public class SecurityConfiguration {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public SpringSecurityDialect springSecurityDialect() {
+        return new SpringSecurityDialect();
     }
 }

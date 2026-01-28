@@ -1,13 +1,20 @@
 <!DOCTYPE html>
 
-<html class="dark" lang="en" xmlns:th="http://www.thymeleaf.org"><head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<html class="dark" lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>CineBox - Join Us</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -35,120 +42,133 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+
         .cinematic-overlay {
             background: radial-gradient(circle at center, rgba(20, 20, 20, 0.7) 0%, rgba(20, 20, 20, 0.95) 100%);
         }
     </style>
 </head>
-<body class="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display">
-<!-- Navbar Component -->
-<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#492224]/30 px-6 md:px-10 py-4 bg-background-light dark:bg-background-dark/80 backdrop-blur-md sticky top-0 z-50">
-    <div class="flex items-center gap-4 text-primary">
 
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display">
+    <!-- Navbar Component -->
+    <header
+        class="w-full border-b border-gray-200 dark:border-neutral-800 px-6 md:px-12 py-4 flex items-center justify-between bg-background-light dark:bg-background-dark z-10">
         <a class="flex items-center gap-3 text-primary group hover:opacity-90 transition-opacity" href="/">
             <div class="size-8">
                 <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                    <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                    <path clip-rule="evenodd"
+                        d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z"
+                        fill="currentColor" fill-rule="evenodd"></path>
                 </svg>
             </div>
             <h2 class="text-white text-2xl font-black leading-tight tracking-tight uppercase">CineBox</h2>
         </a>
-    </div>
-    <div class="flex items-center gap-8">
-        <div class="hidden md:flex items-center gap-9">
-            <a class="text-neutral-700 dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Movies</a>
-            <a class="text-neutral-700 dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Cinemas</a>
-            <a class="text-neutral-700 dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Offers</a>
-        </div>
-    </div>
-</header>
-<!-- Main Content Area -->
-<main class="flex-1 flex items-center justify-center relative py-12 px-4 overflow-hidden">
-    <!-- Background Decorative Element -->
-    <div class="absolute inset-0 z-0 opacity-20 pointer-events-none">
-        <div class="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-transparent"></div>
-        <div class="grid grid-cols-6 gap-2 w-full h-full p-4 transform -rotate-12 scale-110">
-            <div class="bg-neutral-800 h-48 rounded-lg" data-alt="Dark abstract movie poster placeholder"></div>
-            <div class="bg-neutral-800 h-48 rounded-lg" data-alt="Dark abstract movie poster placeholder"></div>
-            <div class="bg-neutral-800 h-48 rounded-lg" data-alt="Dark abstract movie poster placeholder"></div>
-            <div class="bg-neutral-800 h-48 rounded-lg" data-alt="Dark abstract movie poster placeholder"></div>
-            <div class="bg-neutral-800 h-48 rounded-lg" data-alt="Dark abstract movie poster placeholder"></div>
-            <div class="bg-neutral-800 h-48 rounded-lg" data-alt="Dark abstract movie poster placeholder"></div>
-            <div class="bg-neutral-800 h-48 rounded-lg" data-alt="Dark abstract movie poster placeholder"></div>
-            <div class="bg-neutral-800 h-48 rounded-lg" data-alt="Dark abstract movie poster placeholder"></div>
-            <div class="bg-neutral-800 h-48 rounded-lg" data-alt="Dark abstract movie poster placeholder"></div>
-            <div class="bg-neutral-800 h-48 rounded-lg" data-alt="Dark abstract movie poster placeholder"></div>
-        </div>
-    </div>
-    <div class="relative z-10 w-full max-w-[500px]">
-        <!-- Registration Card -->
-        <div class="bg-white dark:bg-[#1f1f1f] rounded-xl shadow-2xl border border-neutral-200 dark:border-neutral-800 p-8 md:p-10 flex flex-col">
-            <!-- Headline & Body Component -->
-            <div class="mb-8">
-                <h1 class="text-neutral-900 dark:text-white tracking-light text-[32px] font-bold leading-tight text-center pb-2">Join CineBox</h1>
-                <p class="text-neutral-600 dark:text-neutral-400 text-base font-normal leading-normal text-center">Your ultimate cinematic experience starts here.</p>
+        <nav class="flex items-center gap-8">
+            <div class="hidden md:flex items-center gap-6">
+                <a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors"
+                    href="/">Browse Movies</a>
             </div>
-            <div id="message-box" class="hidden mb-4 p-4 rounded-lg text-sm font-medium text-center"></div>
-            <form id="register-form" class="flex flex-col gap-4" action = "/create-user" method="post">
-                <!-- TextField: Full Name -->
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-neutral-700 dark:text-white text-sm font-semibold leading-normal">Full Name</label>
-                    <div class="relative">
-                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-[20px]">person</span>
-                        <input name="fullName" class="flex w-full rounded-lg text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 border border-neutral-300 dark:border-[#333333] bg-neutral-50 dark:bg-[#2a2a2a] h-12 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 pl-11 pr-4 text-base transition-all" placeholder="Enter your full name" type="text" required/>
-                    </div>
+        </nav>
+    </header>
+    <!-- Main Content Area -->
+    <main class="flex-1 flex items-center justify-center relative py-12 px-4 overflow-hidden">
+        <div class="relative z-10 w-full max-w-[500px]">
+            <!-- Registration Card -->
+            <div
+                class="bg-white dark:bg-[#1f1f1f] rounded-xl shadow-2xl border border-neutral-200 dark:border-neutral-800 p-8 md:p-10 flex flex-col">
+                <!-- Headline & Body Component -->
+                <div class="mb-8">
+                    <h1
+                        class="text-neutral-900 dark:text-white tracking-light text-[32px] font-bold leading-tight text-center pb-2">
+                        Join CineBox</h1>
+                    <p class="text-neutral-600 dark:text-neutral-400 text-base font-normal leading-normal text-center">
+                        Your ultimate cinematic experience starts here.</p>
                 </div>
-                <!-- TextField: Email -->
-                <div class="flex flex-col gap-1.5">
-                    <label class="text-neutral-700 dark:text-white text-sm font-semibold leading-normal">Email Address</label>
-                    <div class="relative">
-                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-[20px]">mail</span>
-                        <input name="username" class="flex w-full rounded-lg text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 border border-neutral-300 dark:border-[#333333] bg-neutral-50 dark:bg-[#2a2a2a] h-12 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 pl-11 pr-4 text-base transition-all" placeholder="name@example.com" type="email" required/>
-                    </div>
-                </div>
-                <!-- Row for Passwords -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div id="message-box" class="hidden mb-4 p-4 rounded-lg text-sm font-medium text-center"></div>
+                <form id="register-form" class="flex flex-col gap-4" action="/create-user" method="post">
+                    <!-- TextField: Full Name -->
                     <div class="flex flex-col gap-1.5">
-                        <label class="text-neutral-700 dark:text-white text-sm font-semibold leading-normal">Password</label>
+                        <label class="text-neutral-700 dark:text-white text-sm font-semibold leading-normal">Full
+                            Name</label>
                         <div class="relative">
-                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-[20px]">lock</span>
-                            <input id="password" name="password" class="flex w-full rounded-lg text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 border border-neutral-300 dark:border-[#333333] bg-neutral-50 dark:bg-[#2a2a2a] h-12 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 pl-11 pr-4 text-base transition-all" placeholder="••••••••" type="password" required/>
+                            <span
+                                class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-[20px]">person</span>
+                            <input name="fullName"
+                                class="flex w-full rounded-lg text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 border border-neutral-300 dark:border-[#333333] bg-neutral-50 dark:bg-[#2a2a2a] h-12 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 pl-11 pr-4 text-base transition-all"
+                                placeholder="Enter your full name" type="text" required />
                         </div>
                     </div>
+                    <!-- TextField: Email -->
                     <div class="flex flex-col gap-1.5">
-                        <label class="text-neutral-700 dark:text-white text-sm font-semibold leading-normal">Confirm</label>
+                        <label class="text-neutral-700 dark:text-white text-sm font-semibold leading-normal">Email
+                            Address</label>
                         <div class="relative">
-                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-[20px]">verified_user</span>
-                            <input id="confirm-password" class="flex w-full rounded-lg text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 border border-neutral-300 dark:border-[#333333] bg-neutral-50 dark:bg-[#2a2a2a] h-12 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 pl-11 pr-4 text-base transition-all" placeholder="••••••••" type="password" required/>
+                            <span
+                                class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-[20px]">mail</span>
+                            <input name="username"
+                                class="flex w-full rounded-lg text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 border border-neutral-300 dark:border-[#333333] bg-neutral-50 dark:bg-[#2a2a2a] h-12 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 pl-11 pr-4 text-base transition-all"
+                                placeholder="name@example.com" type="email" required />
                         </div>
-                        <span id="password-error" class="hidden text-xs text-primary mt-1">Passwords do not match!</span>
                     </div>
+                    <!-- Row for Passwords -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-1.5">
+                            <label
+                                class="text-neutral-700 dark:text-white text-sm font-semibold leading-normal">Password</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-[20px]">lock</span>
+                                <input id="password" name="password"
+                                    class="flex w-full rounded-lg text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 border border-neutral-300 dark:border-[#333333] bg-neutral-50 dark:bg-[#2a2a2a] h-12 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 pl-11 pr-4 text-base transition-all"
+                                    placeholder="••••••••" type="password" required />
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label
+                                class="text-neutral-700 dark:text-white text-sm font-semibold leading-normal">Confirm</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-[20px]">verified_user</span>
+                                <input id="confirm-password"
+                                    class="flex w-full rounded-lg text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 border border-neutral-300 dark:border-[#333333] bg-neutral-50 dark:bg-[#2a2a2a] h-12 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 pl-11 pr-4 text-base transition-all"
+                                    placeholder="••••••••" type="password" required />
+                            </div>
+                            <span id="password-error" class="hidden text-xs text-primary mt-1">Passwords do not
+                                match!</span>
+                        </div>
+                    </div>
+                    <!-- Checkbox -->
+                    <div class="flex items-start gap-3 py-2">
+                        <input
+                            class="mt-1 h-5 w-5 rounded border-neutral-300 dark:border-[#333333] text-primary focus:ring-primary bg-neutral-50 dark:bg-[#2a2a2a]"
+                            id="terms" type="checkbox" required />
+                        <label class="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed" for="terms">
+                            I agree to the <a class="text-primary hover:underline" href="#">Terms and Conditions</a> and
+                            <a class="text-primary hover:underline" href="#">Privacy Policy</a>.
+                        </label>
+                    </div>
+                    <!-- Main CTA -->
+                    <button
+                        class="mt-4 flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-4 bg-primary text-white text-lg font-bold leading-normal tracking-[0.015em] hover:bg-red-700 active:scale-[0.98] transition-all shadow-lg shadow-primary/20"
+                        type="submit">
+                        Create Account
+                    </button>
+                </form>
+                <!-- Footer Link -->
+                <div class="mt-8 text-center border-t border-neutral-200 dark:border-neutral-800 pt-6">
+                    <p class="text-neutral-600 dark:text-neutral-400 text-sm">
+                        Already have an account?
+                        <a class="text-primary font-bold hover:underline ml-1" href="/login">Login</a>
+                    </p>
                 </div>
-                <!-- Checkbox -->
-                <div class="flex items-start gap-3 py-2">
-                    <input class="mt-1 h-5 w-5 rounded border-neutral-300 dark:border-[#333333] text-primary focus:ring-primary bg-neutral-50 dark:bg-[#2a2a2a]" id="terms" type="checkbox" required/>
-                    <label class="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed" for="terms">
-                        I agree to the <a class="text-primary hover:underline" href="#">Terms and Conditions</a> and <a class="text-primary hover:underline" href="#">Privacy Policy</a>.
-                    </label>
-                </div>
-                <!-- Main CTA -->
-                <button class="mt-4 flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-4 bg-primary text-white text-lg font-bold leading-normal tracking-[0.015em] hover:bg-red-700 active:scale-[0.98] transition-all shadow-lg shadow-primary/20" type="submit">
-                    Create Account
-                </button>
-            </form>
-            <!-- Footer Link -->
-            <div class="mt-8 text-center border-t border-neutral-200 dark:border-neutral-800 pt-6">
-                <p class="text-neutral-600 dark:text-neutral-400 text-sm">
-                    Already have an account?
-                    <a class="text-primary font-bold hover:underline ml-1" href="/login">Login</a>
-                </p>
             </div>
         </div>
-    </div>
-</main>
-<!-- Footer Space -->
-<footer class="py-6 text-center text-neutral-500 dark:text-neutral-600 text-xs">
-    © 2024 CineBox Entertainment. All rights reserved.
-</footer>
-<script th:src="@{/js/register.js}"></script>
-</body></html>
+    </main>
+    <!-- Footer Space -->
+    <footer class="py-6 text-center text-neutral-500 dark:text-neutral-600 text-xs">
+        © 2024 CineBox Entertainment. All rights reserved.
+    </footer>
+    <script th:src="@{/js/register.js}"></script>
+</body>
+
+</html>

@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html class="dark" lang="en" xmlns:th="http://www.thymeleaf.org"><head>
+<html class="dark" lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>CineBox - Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -15,28 +17,34 @@
                         "primary": "#e60a15",
                         "background-light": "#f8f5f6",
                         "background-dark": "#141414",
-                        "surface-dark": "#1f1f1f",
-                        "border-dark": "#333333"
                     },
                     fontFamily: {
                         "display": ["Inter", "sans-serif"]
                     },
-                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
                 },
             },
         }
     </script>
     <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
         body {
             font-family: 'Inter', sans-serif;
         }
+        .cinematic-overlay {
+            background: radial-gradient(circle at center, rgba(20, 20, 20, 0.7) 0%, rgba(20, 20, 20, 0.95) 100%);
+        }
     </style>
 </head>
-<body class="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display transition-colors duration-300">
-<header class="w-full border-b border-gray-200 dark:border-border-dark px-6 md:px-12 py-4 flex items-center justify-between bg-background-light dark:bg-background-dark z-10">
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display">
+<script src="/js/api-config.js"></script>
+
+<!-- Navbar Component -->
+<header class="w-full border-b border-gray-200 dark:border-neutral-800 px-6 md:px-12 py-4 flex items-center justify-between bg-background-light dark:bg-background-dark z-10">
     <a class="flex items-center gap-3 text-primary group hover:opacity-90 transition-opacity" href="/">
         <div class="size-8">
             <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
@@ -47,77 +55,111 @@
     </a>
     <nav class="flex items-center gap-8">
         <div class="hidden md:flex items-center gap-6">
-            <a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors" href="#">Browse Movies</a>
+            <a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors" href="/">Browse Movies</a>
         </div>
     </nav>
 </header>
-<main class="flex-1 flex items-center justify-center p-6 relative overflow-hidden">
-    <div class="absolute inset-0 z-0 opacity-10 dark:opacity-20">
-        <div class="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-black"></div>
-    </div>
-    <div class="relative z-10 w-full max-w-[450px] bg-white dark:bg-surface-dark p-8 md:p-12 rounded-xl shadow-2xl border border-gray-100 dark:border-border-dark">
-        <div class="mb-8">
-            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Sign In</h2>
-            <p class="text-gray-500 dark:text-gray-400 text-sm">Welcome back! Please enter your details.</p>
-        </div>
-        <form id="loginForm" class="space-y-5" th:action = "@{/auth/login}" method="post">
-            <div class="flex flex-col gap-2">
-                <label class="text-sm font-semibold text-gray-700 dark:text-gray-200">Email Address</label>
-                <input name="username" class="w-full rounded-lg border border-gray-300 dark:border-border-dark bg-white dark:bg-background-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary px-4 py-3 placeholder:text-gray-400 dark:placeholder:text-gray-600 transition-all outline-none" placeholder="name@company.com" type="email"/>
+
+<!-- Main Content Area -->
+<main class="flex-1 flex items-center justify-center relative py-12 px-4 overflow-hidden">
+    <!-- Optional background effect matching register if desired, staying simple for now -->
+    
+    <div class="relative z-10 w-full max-w-[500px]">
+        
+        <!-- Login Card -->
+        <div class="bg-white dark:bg-[#1f1f1f] rounded-xl shadow-2xl border border-neutral-200 dark:border-neutral-800 p-8 md:p-10 flex flex-col">
+            
+            <!-- Headline -->
+            <div class="mb-8">
+                <h1 class="text-neutral-900 dark:text-white tracking-light text-[32px] font-bold leading-tight text-center pb-2">Welcome Back</h1>
+                <p class="text-neutral-600 dark:text-neutral-400 text-base font-normal leading-normal text-center">Please enter your details to sign in.</p>
             </div>
-            <div class="flex flex-col gap-2">
-                <label class="text-sm font-semibold text-gray-700 dark:text-gray-200">Password</label>
-                <div class="relative">
-                    <input name="password" class="w-full rounded-lg border border-gray-300 dark:border-border-dark bg-white dark:bg-background-dark text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary px-4 py-3 placeholder:text-gray-400 dark:placeholder:text-gray-600 transition-all outline-none" placeholder="••••••••" type="password"/>
-                    <button class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" type="button">
-                        <span class="material-symbols-outlined text-[20px]">visibility</span>
+            
+            <div id="message-box" class="hidden mb-4 p-4 rounded-lg text-sm font-medium text-center"></div>
+            
+            <form id="loginForm" class="flex flex-col gap-4" th:action="@{/auth/login(continue=${param.continue})}" method="post">
+                
+                <!-- Email Address -->
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-neutral-700 dark:text-white text-sm font-semibold leading-normal">Email Address</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-[20px]">mail</span>
+                        <input name="username" class="flex w-full rounded-lg text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 border border-neutral-300 dark:border-[#333333] bg-neutral-50 dark:bg-[#2a2a2a] h-12 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 pl-11 pr-4 text-base transition-all" placeholder="name@company.com" type="email" required/>
+                    </div>
+                </div>
+                
+                <!-- Password -->
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-neutral-700 dark:text-white text-sm font-semibold leading-normal">Password</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-[20px]">lock</span>
+                        <input id="password" name="password" class="flex w-full rounded-lg text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 border border-neutral-300 dark:border-[#333333] bg-neutral-50 dark:bg-[#2a2a2a] h-12 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 pl-11 pr-12 text-base transition-all" placeholder="••••••••" type="password" required/>
+                        <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-200 transition-colors" onclick="togglePasswordVisibility()">
+                            <span class="material-symbols-outlined text-[20px]">visibility</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Remember Me & Forgot Password -->
+                <div class="flex items-center justify-between text-sm py-1">
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input class="mt-0.5 h-4 w-4 rounded border-neutral-300 dark:border-[#333333] text-primary focus:ring-primary bg-neutral-50 dark:bg-[#2a2a2a]" type="checkbox"/>
+                        <span class="text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors">Remember me</span>
+                    </label>
+                    <a class="font-medium text-primary hover:underline" href="#">Forgot password?</a>
+                </div>
+
+                <!-- Main Button -->
+                <button class="mt-2 flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-4 bg-primary text-white text-lg font-bold leading-normal tracking-[0.015em] hover:bg-red-700 active:scale-[0.98] transition-all shadow-lg shadow-primary/20" type="submit">
+                    Sign In
+                </button>
+
+                <!-- Divider -->
+                <div class="relative flex items-center py-2">
+                    <div class="flex-grow border-t border-gray-200 dark:border-neutral-800"></div>
+                    <span class="flex-shrink mx-4 text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">OR</span>
+                    <div class="flex-grow border-t border-gray-200 dark:border-neutral-800"></div>
+                </div>
+
+                <!-- Social Buttons -->
+                <div class="grid grid-cols-2 gap-4">
+                    <button class="flex items-center justify-center gap-2 py-3 px-4 rounded-lg border border-neutral-300 dark:border-[#333333] bg-neutral-50 dark:bg-[#2a2a2a] hover:bg-neutral-100 dark:hover:bg-[#333333] transition-colors font-medium text-neutral-700 dark:text-white" type="button">
+                        <img alt="Google" class="w-5 h-5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuH4LsqsL4VKQD0DHjduwBZ-N91dyDlevqcfNhCwhmuFsZvp--4Kq4jvWBtmqsBAOvT-6XBOnEs17iN4aEDFsV0UnMFSp8Fy7qqrjyKNjdw3oPcV0nCWurplJXJhdlRV99EOd5VQriNCsSjn45rK_TRo7a4gUN2rbe-D2sZ_F936o8wGcCcbFyZMmx8IQ_cMQSuFUFjqzgUVAnbI7ktKVFzL4Uhj1F7WU0dhWC6Ptveg0arGaK5o6LRlqz3AJit9ZvWxca_jKnlXYi"/>
+                        <span>Google</span>
+                    </button>
+                    <button class="flex items-center justify-center gap-2 py-3 px-4 rounded-lg border border-neutral-300 dark:border-[#333333] bg-neutral-50 dark:bg-[#2a2a2a] hover:bg-neutral-100 dark:hover:bg-[#333333] transition-colors font-medium text-neutral-700 dark:text-white" type="button">
+                        <svg class="w-5 h-5 text-[#1877F2] fill-current" viewBox="0 0 24 24">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path>
+                        </svg>
+                        <span>Facebook</span>
                     </button>
                 </div>
+
+            </form>
+
+            <!-- Footer Link (Bottom of Card) -->
+            <div class="mt-8 text-center border-t border-neutral-200 dark:border-neutral-800 pt-6">
+                <p class="text-neutral-600 dark:text-neutral-400 text-sm">
+                    New to CineBox?
+                    <a class="text-primary font-bold hover:underline ml-1" href="/register">Sign up now</a>
+                </p>
             </div>
-            <div class="flex items-center justify-between text-sm">
-                <label class="flex items-center gap-2 cursor-pointer group">
-                    <input class="h-4 w-4 rounded border-gray-300 dark:border-border-dark text-primary focus:ring-primary bg-transparent" type="checkbox"/>
-                    <span class="text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Remember me</span>
-                </label>
-                <a class="font-medium text-primary hover:underline underline-offset-4" href="#">Forgot password?</a>
-            </div>
-            <button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3.5 rounded-lg shadow-lg shadow-primary/20 transition-all transform active:scale-[0.98]" type="submit">
-                Sign In
-            </button>
-            <div class="relative flex items-center py-4">
-                <div class="flex-grow border-t border-gray-200 dark:border-border-dark"></div>
-                <span class="flex-shrink mx-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest">OR</span>
-                <div class="flex-grow border-t border-gray-200 dark:border-border-dark"></div>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <button class="flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg border border-gray-300 dark:border-border-dark hover:bg-gray-50 dark:hover:bg-background-dark transition-colors font-medium text-gray-700 dark:text-gray-200" type="button">
-                    <img alt="Google" class="w-5 h-5" data-alt="Google logo icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuH4LsqsL4VKQD0DHjduwBZ-N91dyDlevqcfNhCwhmuFsZvp--4Kq4jvWBtmqsBAOvT-6XBOnEs17iN4aEDFsV0UnMFSp8Fy7qqrjyKNjdw3oPcV0nCWurplJXJhdlRV99EOd5VQriNCsSjn45rK_TRo7a4gUN2rbe-D2sZ_F936o8wGcCcbFyZMmx8IQ_cMQSuFUFjqzgUVAnbI7ktKVFzL4Uhj1F7WU0dhWC6Ptveg0arGaK5o6LRlqz3AJit9ZvWxca_jKnlXYi"/>
-                    <span>Google</span>
-                </button>
-                <button class="flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg border border-gray-300 dark:border-border-dark hover:bg-gray-50 dark:hover:bg-background-dark transition-colors font-medium text-gray-700 dark:text-gray-200" type="button">
-                    <svg class="w-5 h-5 text-[#1877F2] fill-current" viewBox="0 0 24 24">
-                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path>
-                    </svg>
-                    <span>Facebook</span>
-                </button>
-            </div>
-        </form>
-        <div class="mt-10 text-center">
-            <p class="text-gray-600 dark:text-gray-400">
-                New to CineBox?
-                <a class="text-primary font-bold hover:underline underline-offset-4 ml-1" href="/register">Sign up now.</a>
-            </p>
         </div>
     </div>
 </main>
-<footer class="w-full py-6 px-6 text-center border-t border-gray-200 dark:border-border-dark bg-background-light dark:bg-background-dark">
-    <p class="text-xs text-gray-500 dark:text-gray-600">
-        © 2024 CineBox Entertainment Inc. All rights reserved.
-        <span class="mx-2">•</span>
-        <a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
-        <span class="mx-2">•</span>
-        <a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
-    </p>
+
+<!-- Footer -->
+<footer class="py-6 text-center text-neutral-500 dark:text-neutral-600 text-xs">
+    © 2024 CineBox Entertainment. All rights reserved.
 </footer>
+
 <script th:src="@{/js/login.js}"></script>
-</body></html>
+<script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+    }
+</script>
+</body>
+</html>

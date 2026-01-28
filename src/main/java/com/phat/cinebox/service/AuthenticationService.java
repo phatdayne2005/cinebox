@@ -33,7 +33,7 @@ public class AuthenticationService {
     private final RedisValidRefreshTokenRepository redisValidRefreshTokenRepository;
     private final UserService userService;
 
-    public LoginResponse login(LoginRequest loginRequest, HttpServletResponse httpServletResponse) {
+    public void login(LoginRequest loginRequest, HttpServletResponse httpServletResponse) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
         User user = (User) authentication.getPrincipal();
@@ -47,26 +47,26 @@ public class AuthenticationService {
                         .expirationTime(ttlInMilliseconds)
                 .build()
         );
+        // Set Access Token và Refresh Token vào cookies trình duyệt
+        setAccessTokenCookie(httpServletResponse, accessPayload);
         // Set Refresh Token vào cookies trình duyệt
         setRefreshTokenCookie(httpServletResponse, refreshPayload);
-        // Trả về Access Token cho client
-        return LoginResponse.builder()
-                .accessToken(accessPayload.getToken())
-                .build();
     }
 
-    public void logout(String token, String refreshToken, HttpServletResponse response) throws ParseException {
+    public void logout(String accessToken, String refreshToken, HttpServletResponse response) throws ParseException {
         // Lấy các thông tin cần thiết
-        JwtInfo jwtInfo = jwtService.parseToken(token);
+        JwtInfo jwtInfo = jwtService.parseToken(accessToken);
         String jwtId =  jwtInfo.getJwtId();
         Date issueTime = jwtInfo.getIssueTime();
         Date expirationTime = jwtInfo.getExpirationTime();
+
         // Kiểm tra token còn hạn sử dụng không
         if (expirationTime.before(new Date())) {
             return;
         }
 
         long ttlInMilliseconds = expirationTime.getTime() - System.currentTimeMillis();
+
         // Lưu Access Token đã đăng xuất vào Black list Redis
         RedisInvalidAccessToken redisInvalidAccessToken = RedisInvalidAccessToken.builder()
                 .jwtId(jwtId)
@@ -74,6 +74,7 @@ public class AuthenticationService {
                 .build();
 
         redisInvalidAccessTokenRepository.save(redisInvalidAccessToken);
+
         // Xóa Refresh Token trong cookies nếu có
         if (refreshToken != null && !refreshToken.isEmpty()){
             jwtInfo = jwtService.parseToken(refreshToken);
@@ -82,30 +83,50 @@ public class AuthenticationService {
                 redisValidRefreshTokenRepository.deleteById(jwtId);
         }
 
+        // Xóa cookies chứa access token
+        removeTokenCookie(response, "access_token");
+
         // Xóa cookies chứa refresh token
-        Cookie cookie = new Cookie("refresh_token", null);
+        removeTokenCookie(response, "refresh_token");
+    }
+
+    public void removeTokenCookie(HttpServletResponse response, String cookieName) {
+        Cookie cookie = new Cookie(cookieName, null);
         cookie.setPath("/");
         cookie.setMaxAge(0);
         cookie.setHttpOnly(true);
         response.addCookie(cookie);
     }
 
-    public void setRefreshTokenCookie(HttpServletResponse response, TokenPayload refreshPayload) {
-        Cookie cookie = new Cookie("refresh_token", refreshPayload.getToken());
+    public void setAccessTokenCookie(HttpServletResponse response, TokenPayload accessPayload) {
+        Cookie accessCookies = new Cookie("access_token", accessPayload.getToken());
 
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge((int) TimeUnit.DAYS.toSeconds(14)); //Refresh token sống 14 ngày
+        accessCookies.setHttpOnly(true);
+        accessCookies.setSecure(true);
+        accessCookies.setPath("/");
+        accessCookies.setMaxAge((int) TimeUnit.MINUTES.toSeconds(30)); // Access token sống 30 phút
 
-        response.addCookie(cookie);
+        response.addCookie(accessCookies);
     }
 
-    public LoginResponse refreshToken(String refreshToken, HttpServletResponse httpServletResponse) throws ParseException, JOSEException {
+    public void setRefreshTokenCookie(HttpServletResponse response, TokenPayload refreshPayload) {
+        Cookie refreshCookies = new Cookie("refresh_token", refreshPayload.getToken());
+
+        refreshCookies.setHttpOnly(true);
+        refreshCookies.setSecure(true);
+        refreshCookies.setPath("/");
+        refreshCookies.setMaxAge((int) TimeUnit.DAYS.toSeconds(14)); // Refresh token sống 14 ngày
+
+        response.addCookie(refreshCookies);
+    }
+
+    public void refreshToken(String refreshToken, HttpServletResponse httpServletResponse) throws ParseException, JOSEException {
         // Kiểm tra refresh token có hợp lệ không vì là API public
         if (!jwtService.validateRefreshToken(refreshToken)) {
+            removeTokenCookie(httpServletResponse, refreshToken);
             throw new RuntimeException("Refresh token is invalid");
         }
+
         // Lấy thông tin cần thiết
         SignedJWT signedJWT = SignedJWT.parse(refreshToken);
         String email = signedJWT.getJWTClaimsSet().getSubject();
@@ -115,10 +136,12 @@ public class AuthenticationService {
         long sevenDaysInMiliseconds = TimeUnit.DAYS.toMillis(7);
         // Nếu Refresh token còn hạn sử dụng <= 7 ngày, cấp Refresh token mới
         if (expiredTime - System.currentTimeMillis() <=  sevenDaysInMiliseconds) {
+            // Generate Refresh Token mới và lưu vào cookies
             TokenPayload refreshPayload = this.jwtService.generateRefreshToken(user);
             setRefreshTokenCookie(httpServletResponse, refreshPayload);
+            // Xóa Refresh Token cũ
             this.redisValidRefreshTokenRepository.deleteById(jwtId);
-            // Lưu Refresh Token vào Redis
+            // Lưu Refresh Token mới vào Redis
             long ttlInMilliseconds = refreshPayload.getExpiredTime().getTime() - System.currentTimeMillis();
             redisValidRefreshTokenRepository.save(RedisValidRefreshToken
                     .builder()
@@ -130,8 +153,7 @@ public class AuthenticationService {
         // Cấp Access Token mới
         TokenPayload newAccessPayload = jwtService.generateAccessToken(user);
 
-        return LoginResponse.builder()
-                .accessToken(newAccessPayload.getToken())
-                .build();
+        // Set access token cookies mới
+        setAccessTokenCookie(httpServletResponse, newAccessPayload);
     }
 }

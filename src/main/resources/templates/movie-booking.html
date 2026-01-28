@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>CineBox - Movie Booking &amp; Seat Selection</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#e60a15",
+                        "background-light": "#f8f5f6",
+                        "background-dark": "#221011",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        body { font-family: 'Inter', sans-serif; }
+        .seat-occupied { color: #492224; cursor: not-allowed; }
+        .seat-available { color: #a1a1aa; cursor: pointer; }
+        .seat-selected { color: #e60a15; cursor: pointer; }
+        .screen-curve {
+            height: 4px;
+            width: 80%;
+            background: linear-gradient(90deg, transparent 0%, #cc8f92 50%, transparent 100%);
+            box-shadow: 0 -4px 15px rgba(204, 143, 146, 0.4);
+            border-radius: 50% 50% 0 0;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen text-white font-display">
+<header class="sticky top-0 z-50 w-full border-b border-white/10 bg-background-dark/80 backdrop-blur-md px-6 lg:px-20 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-8">
+        <div class="flex items-center gap-8 flex-1">
+            <a class="flex items-center gap-3 text-primary group hover:opacity-90 transition-opacity" href="/">
+                <div class="size-8">
+                    <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                        <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <h2 class="text-white text-2xl font-black leading-tight tracking-tight uppercase">CineBox</h2>
+            </a>
+            <div class="hidden md:flex flex-1 max-w-md">
+                <div class="relative w-full group">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
+                    <input class="w-full h-11 bg-white/5 border border-white/10 rounded-lg pl-11 pr-4 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" placeholder="Search movies, cinemas, actors..." type="text"/>
+                </div>
+            </div>
+        </div>
+        <nav class="hidden lg:flex items-center gap-10">
+            <a class="text-sm font-semibold hover:text-primary transition-colors uppercase tracking-wider" href="#">Movies</a>
+            <a class="text-sm font-semibold hover:text-primary transition-colors uppercase tracking-wider" href="#">Cinemas</a>
+            <a class="text-sm font-semibold hover:text-primary transition-colors uppercase tracking-wider" href="#">News</a>
+        </nav>
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-4" sec:authorize="isAnonymous()">
+                <a class="bg-primary hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm transition-all transform hover:scale-105" href="/login">
+                    Login
+                </a>
+            </div>
+            <div sec:authorize="isAuthenticated()" class="relative group">
+                <div class="flex items-center gap-3 cursor-pointer">
+                    <div class="size-10 rounded-full border-2 border-primary/20 bg-cover bg-center overflow-hidden transition-transform group-hover:scale-105"
+                         style="background-image: url('https://ui-avatars.com/api/?name=User&background=e60a15&color=fff');">
+                    </div>
+                    <span class="text-sm font-semibold text-white hidden md:block" sec:authentication="name">Username</span>
+                    <span class="material-symbols-outlined text-slate-400 text-sm transition-transform group-hover:rotate-180">expand_more</span>
+                </div>
+
+                <div class="absolute right-0 mt-2 w-48 bg-background-dark border border-white/10 rounded-xl shadow-2xl opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 z-50 overflow-hidden">
+                    <div class="py-2">
+                        <a href="/profile" class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-white/5 hover:text-primary transition-colors">
+                            <span class="material-symbols-outlined text-[20px]">person</span>
+                            Thông tin cá nhân
+                        </a>
+
+                        <hr class="border-white/5 my-1">
+
+                        <button id="logout-button" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 transition-colors">
+                            <span class="material-symbols-outlined text-[20px]">logout</span>
+                            Đăng xuất
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<main class="max-w-[1280px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 px-10 py-8">
+    <div class="lg:col-span-8 flex flex-col gap-6">
+        <div class="@container">
+            <div class="bg-cover bg-center flex flex-col justify-end overflow-hidden rounded-xl min-h-[400px] relative shadow-2xl" style='background-image: linear-gradient(to top, #221011 5%, rgba(0, 0, 0, 0) 60%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuC5X4UxpyGwjyOTNZ7yyQrgZRyW1HR5ZmRSzA-wTP1wwUUjgJ34JlOeHIyqxIPy26HIF0ta1fE8W7QsgbYDVkE-YIs2S-cnYIDJjzAuVY9xLwlPTubZeytfuSdD2tWW6rreXOFTRWzt4i9RH1fZsd8b05MKIy1byQZtE8JVnuYo_uyBm5qWrIvhazPcCzHhpHbHUAKhMsgjsZZVCuOoXrfXeLpZei_ojEBuUFQagoODEIjIZGSr09ii1s_TZiSHTeQVmSPnv-XADKer");'>
+                <div class="flex flex-col p-8 gap-2">
+                    <div class="flex gap-2">
+                        <span class="bg-primary px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">IMAX</span>
+                        <span class="bg-zinc-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">PG-13</span>
+                    </div>
+                    <h1 class="text-white tracking-tight text-5xl font-black leading-tight drop-shadow-md">The Batman (2022)</h1>
+                    <p class="text-zinc-300 text-sm max-w-xl line-clamp-2">In his second year of fighting crime, Batman uncovers corruption in Gotham City that connects to his own family while facing a serial killer known as the Riddler.</p>
+                    <div class="flex items-center gap-4 mt-2 text-zinc-400 text-sm">
+                        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> 2h 56m</span>
+                        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm text-yellow-500">star</span> 8.1/10</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <section class="bg-[#2d1517] rounded-xl p-6">
+            <h2 class="text-white text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="bg-primary text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
+                Select Date &amp; Time
+            </h2>
+            <div class="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
+                <div class="flex flex-col h-20 w-16 shrink-0 items-center justify-center rounded-lg bg-primary text-white cursor-pointer transition-all">
+                    <p class="text-[10px] font-bold uppercase">Oct</p>
+                    <p class="text-xl font-bold">15</p>
+                    <p class="text-[10px] font-medium">Mon</p>
+                </div>
+                <div class="flex flex-col h-20 w-16 shrink-0 items-center justify-center rounded-lg bg-[#492224] text-white/60 hover:bg-[#5a2a2c] cursor-pointer transition-all">
+                    <p class="text-[10px] font-bold uppercase">Oct</p>
+                    <p class="text-xl font-bold">16</p>
+                    <p class="text-[10px] font-medium">Tue</p>
+                </div>
+                <div class="flex flex-col h-20 w-16 shrink-0 items-center justify-center rounded-lg bg-[#492224] text-white/60 hover:bg-[#5a2a2c] cursor-pointer transition-all">
+                    <p class="text-[10px] font-bold uppercase">Oct</p>
+                    <p class="text-xl font-bold">17</p>
+                    <p class="text-[10px] font-medium">Wed</p>
+                </div>
+                <div class="flex flex-col h-20 w-16 shrink-0 items-center justify-center rounded-lg bg-[#492224] text-white/60 hover:bg-[#5a2a2c] cursor-pointer transition-all">
+                    <p class="text-[10px] font-bold uppercase">Oct</p>
+                    <p class="text-xl font-bold">18</p>
+                    <p class="text-[10px] font-medium">Thu</p>
+                </div>
+                <div class="flex flex-col h-20 w-16 shrink-0 items-center justify-center rounded-lg bg-[#492224] text-white/60 hover:bg-[#5a2a2c] cursor-pointer transition-all">
+                    <p class="text-[10px] font-bold uppercase">Oct</p>
+                    <p class="text-xl font-bold">19</p>
+                    <p class="text-[10px] font-medium">Fri</p>
+                </div>
+                <div class="flex flex-col h-20 w-16 shrink-0 items-center justify-center rounded-lg bg-[#492224] text-white/60 hover:bg-[#5a2a2c] cursor-pointer transition-all">
+                    <p class="text-[10px] font-bold uppercase">Oct</p>
+                    <p class="text-xl font-bold">20</p>
+                    <p class="text-[10px] font-medium">Sat</p>
+                </div>
+            </div>
+            <div class="mt-6 flex flex-col gap-4">
+                <div>
+                    <h3 class="text-zinc-400 text-xs font-bold uppercase tracking-widest mb-3">IMAX 2D</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <button class="px-5 py-2 rounded-lg bg-primary border border-primary text-sm font-bold shadow-lg shadow-primary/20">10:30 AM</button>
+                        <button class="px-5 py-2 rounded-lg bg-[#492224] border border-transparent hover:border-primary/50 text-sm font-bold transition-all text-white/80">01:45 PM</button>
+                        <button class="px-5 py-2 rounded-lg bg-[#492224] border border-transparent hover:border-primary/50 text-sm font-bold transition-all text-white/80">05:15 PM</button>
+                        <button class="px-5 py-2 rounded-lg bg-[#492224] border border-transparent hover:border-primary/50 text-sm font-bold transition-all text-white/80">08:45 PM</button>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-zinc-400 text-xs font-bold uppercase tracking-widest mb-3">Dolby Cinema</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <button class="px-5 py-2 rounded-lg bg-[#492224] border border-transparent hover:border-primary/50 text-sm font-bold transition-all text-white/80">11:00 AM</button>
+                        <button class="px-5 py-2 rounded-lg bg-[#492224] border border-transparent hover:border-primary/50 text-sm font-bold transition-all text-white/80">03:00 PM</button>
+                        <button class="px-5 py-2 rounded-lg bg-[#492224] border border-transparent hover:border-primary/50 text-sm font-bold transition-all text-white/80">07:30 PM</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="bg-[#2d1517] rounded-xl p-6">
+            <h2 class="text-white text-xl font-bold mb-8 flex items-center gap-2">
+                <span class="bg-primary text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
+                Select Seats
+            </h2>
+            <div class="flex flex-col items-center">
+                <div class="screen-curve mb-16 relative">
+                    <p class="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em]">Screen</p>
+                </div>
+                <div class="flex flex-col gap-3">
+                    <div class="flex gap-4 items-center">
+                        <span class="text-zinc-600 text-[10px] w-4 font-bold">A</span>
+                        <div class="flex gap-2">
+                            <span class="material-symbols-outlined text-2xl seat-occupied">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <div class="w-8"></div>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <div class="w-8"></div>
+                            <span class="material-symbols-outlined text-2xl seat-occupied">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-occupied">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 items-center">
+                        <span class="text-zinc-600 text-[10px] w-4 font-bold">B</span>
+                        <div class="flex gap-2">
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <div class="w-8"></div>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-selected">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-selected">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <div class="w-8"></div>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 items-center">
+                        <span class="text-zinc-600 text-[10px] w-4 font-bold">C</span>
+                        <div class="flex gap-2">
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-occupied">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-occupied">chair</span>
+                            <div class="w-8"></div>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <div class="w-8"></div>
+                            <span class="material-symbols-outlined text-2xl seat-occupied">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 items-center">
+                        <span class="text-zinc-600 text-[10px] w-4 font-bold">D</span>
+                        <div class="flex gap-2">
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <div class="w-8"></div>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <div class="w-8"></div>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                            <span class="material-symbols-outlined text-2xl seat-available">chair</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-8 mt-12 border-t border-white/5 pt-6 w-full justify-center">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg seat-available">chair</span>
+                        <span class="text-[10px] font-bold text-zinc-400 uppercase">Available</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg seat-selected">chair</span>
+                        <span class="text-[10px] font-bold text-zinc-400 uppercase">Selected</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg seat-occupied">chair</span>
+                        <span class="text-[10px] font-bold text-zinc-400 uppercase">Occupied</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <aside class="lg:col-span-4">
+        <div class="sticky top-24 flex flex-col gap-4">
+            <div class="bg-[#2d1517] rounded-xl overflow-hidden shadow-xl border border-white/5">
+                <div class="p-5 border-b border-white/5 bg-white/[0.02]">
+                    <h3 class="text-lg font-bold uppercase tracking-tight">Booking Summary</h3>
+                </div>
+                <div class="p-5 flex flex-col gap-6">
+                    <div class="flex gap-4">
+                        <div class="h-24 w-16 bg-zinc-800 rounded shadow-md overflow-hidden shrink-0">
+                            <img alt="The Batman Thumbnail" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARwpCp9j0O4hD1Inxhlk2bIrjtfW6gdvyBPj5wbaxYRyz2aFxAiIjYmGp0jGnJb5ZkeAqUBvC3gkFcqwhsWfPShh5mSWrJv4gWnBscaCBaK_qDdgiLV8iJzcqJMS6Jy9fK1NSwi5RyZLUTr-DwO9ZfORS6VAnEweZMvXmN9j_4bWa1rItv50P_Jp5gLzb35m1s3z-yOv286wiwt8_osG-TWlWwx4jYkvjhhxjdp7E4LUmzOhayth-ux7XLClrze2N6fpzvyJwcq8FM"/>
+                        </div>
+                        <div class="flex flex-col justify-center">
+                            <h4 class="font-bold leading-tight">The Batman (2022)</h4>
+                            <p class="text-xs text-zinc-400 mt-1">AMC Gotham City, Theater 4</p>
+                            <p class="text-xs text-primary font-bold mt-1 uppercase tracking-tighter">IMAX 2D</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-y-4 text-sm">
+                        <div class="flex flex-col gap-1">
+                            <span class="text-zinc-500 text-[10px] font-bold uppercase">Date</span>
+                            <span class="font-semibold">Mon, 15 Oct 2023</span>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <span class="text-zinc-500 text-[10px] font-bold uppercase">Time</span>
+                            <span class="font-semibold">10:30 AM</span>
+                        </div>
+                        <div class="flex flex-col gap-1 col-span-2">
+                            <span class="text-zinc-500 text-[10px] font-bold uppercase">Selected Seats</span>
+                            <div class="flex gap-2">
+                                <span class="bg-[#492224] px-2 py-1 rounded text-xs font-bold border border-white/10">B5</span>
+                                <span class="bg-[#492224] px-2 py-1 rounded text-xs font-bold border border-white/10">B6</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pt-6 border-t border-white/5 flex flex-col gap-2">
+                        <div class="flex justify-between text-sm text-zinc-400">
+                            <span>Ticket Price (x2)</span>
+                            <span>$32.00</span>
+                        </div>
+                        <div class="flex justify-between text-sm text-zinc-400">
+                            <span>Booking Fee</span>
+                            <span>$2.50</span>
+                        </div>
+                        <div class="flex justify-between items-end pt-2">
+                            <span class="text-lg font-bold uppercase tracking-tight">Total Pay</span>
+                            <span class="text-2xl font-black text-primary">$34.50</span>
+                        </div>
+                    </div>
+                    <button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-lg transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 group uppercase tracking-widest text-sm">
+                        Continue to Payment
+                        <span class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+            <div class="bg-blue-900/10 border border-blue-500/20 rounded-xl p-4 flex gap-3">
+                <span class="material-symbols-outlined text-blue-400">info</span>
+                <p class="text-xs text-blue-100/80 leading-relaxed">
+                    Enjoy 15% discount with CineBox Platinum Rewards. <a class="text-blue-400 font-bold underline" href="#">Apply code</a>.
+                </p>
+            </div>
+        </div>
+    </aside>
+</main>
+<footer class="mt-20 border-t border-white/5 py-12 px-10">
+    <div class="max-w-[1280px] mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+        <a class="flex items-center gap-2 text-primary group transition-opacity hover:opacity-90" href="/">
+            <div class="size-6">
+                <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                </svg>
+            </div>
+            <h2 class="text-white text-lg font-black tracking-tighter uppercase italic">Cine<span class="text-primary">Box</span></h2>
+        </a>
+        <div class="flex gap-8 text-sm text-zinc-500 font-semibold uppercase tracking-wider">
+            <a class="hover:text-white transition-colors" href="#">Privacy Policy</a>
+            <a class="hover:text-white transition-colors" href="#">Terms of Service</a>
+            <a class="hover:text-white transition-colors" href="#">Help Center</a>
+        </div>
+        <div class="text-xs text-zinc-600 font-medium">
+            © 2023 CINEBOX INTERACTIVE. ALL RIGHTS RESERVED.
+        </div>
+    </div>
+</footer>
+
+</body></html>

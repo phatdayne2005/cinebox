@@ -12,6 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,18 +20,29 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/auth/login")
-    public LoginResponse login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse httpServletResponse) {
-        return this.authenticationService.login(loginRequest, httpServletResponse);
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse httpServletResponse, @RequestParam(value = "continue", required = false) String continueUrl) {
+        try {
+            this.authenticationService.login(loginRequest, httpServletResponse);
+            // 1. Kiểm tra an toàn cho continueUrl
+            String targetUrl = "/"; // Mặc định về home
+            if (continueUrl != null && !continueUrl.isBlank() && continueUrl.startsWith("/") && !continueUrl.equals("error")) {
+                targetUrl = continueUrl;
+            }
+            // 2. Trả về JSON chứa URL đích
+            return ResponseEntity.ok(Map.of("redirectTo", targetUrl));
+        }
+        catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 
     @PostMapping("/auth/logout")
-    void logout(@RequestHeader("Authorization") String authHeader, @CookieValue(name = "refresh_token") String refreshToken, HttpServletResponse httpServletResponse) throws ParseException {
-        String token =  authHeader.replace("Bearer ", "");
-        authenticationService.logout(token, refreshToken, httpServletResponse);
+    void logout(@CookieValue(name="access_token") String accessToken, @CookieValue(name = "refresh_token") String refreshToken, HttpServletResponse httpServletResponse) throws ParseException {
+        authenticationService.logout(accessToken, refreshToken, httpServletResponse);
     }
 
     @PostMapping("/auth/refresh")
-    public LoginResponse refreshToken(@CookieValue(name = "refresh_token") String refreshToken, HttpServletResponse httpServletResponse) throws ParseException, JOSEException {
-        return this.authenticationService.refreshToken(refreshToken, httpServletResponse);
+    public void refreshToken(@CookieValue(name = "refresh_token") String refreshToken, HttpServletResponse httpServletResponse) throws ParseException, JOSEException {
+        this.authenticationService.refreshToken(refreshToken, httpServletResponse);
     }
 }

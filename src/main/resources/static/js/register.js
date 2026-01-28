@@ -1,14 +1,24 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const passwordInput = document.getElementById('password');
     const confirmInput = document.getElementById('confirm-password');
     const passwordError = document.getElementById('password-error');
     const registerForm = document.getElementById('register-form');
     const messageBox = document.getElementById('message-box');
+    const submitBtn = registerForm.querySelector('button[type="submit"]');
 
-    // Hàm hiển thị trạng thái (Đưa ra ngoài để dùng chung)
     function showStatus(msg, type) {
+        // Nếu thông báo đang hiện và nội dung giống hệt, chỉ cần tạo hiệu ứng "rung" để báo hiệu
+        if (!messageBox.classList.contains('hidden') && messageBox.textContent === msg) {
+            messageBox.classList.remove('animate-shake'); // Reset animation
+            void messageBox.offsetWidth; // Trigger reflow để restart animation
+            messageBox.classList.add('animate-shake');
+            return;
+        }
+
+        // Nếu là nội dung mới, cập nhật class nhưng KHÔNG dùng hidden để tránh giật layout
         messageBox.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700',
             'dark:bg-green-900/30', 'dark:text-green-400', 'dark:bg-red-900/30', 'dark:text-red-400');
+
         if (type === 'success') {
             messageBox.classList.add('bg-green-100', 'text-green-700', 'dark:bg-green-900/30', 'dark:text-green-400');
         } else {
@@ -17,21 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
         messageBox.textContent = msg;
     }
 
-    // 1. Kiểm tra mật khẩu (Real-time)
-    function validatePasswords() {
-        if (confirmInput.value.length > 0 && passwordInput.value !== confirmInput.value) {
-            passwordError.classList.remove('hidden');
-            confirmInput.classList.add('border-primary', 'ring-1', 'ring-primary'); // Thêm ring cho rõ
-        } else {
-            passwordError.classList.add('hidden');
-            confirmInput.classList.remove('border-primary', 'ring-1', 'ring-primary');
-        }
-    }
-
-    passwordInput.addEventListener('input', validatePasswords);
-    confirmInput.addEventListener('input', validatePasswords);
-
-    // 2. Xử lý gửi Form
     registerForm.addEventListener('submit', async function(e) {
         e.preventDefault();
 
@@ -40,13 +35,15 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        const submitBtn = registerForm.querySelector('button[type="submit"]');
+        // THAY ĐỔI TẠI ĐÂY: Không ẩn messageBox, chỉ làm mờ nó để báo hiệu đang xử lý
+        if (!messageBox.classList.contains('hidden')) {
+            messageBox.style.opacity = "0.5";
+        }
 
-        // Trạng thái Loading
-        messageBox.classList.add('hidden');
         submitBtn.disabled = true;
-        submitBtn.classList.add('opacity-50', 'cursor-not-allowed'); // Thêm hiệu ứng disable
-        submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-3 inline-block" viewBox="0 0 24 24"></svg> Processing...';
+        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<span class="inline-block animate-spin mr-2">↻</span> Processing...';
 
         const formData = new FormData(registerForm);
         const data = Object.fromEntries(formData.entries());
@@ -58,13 +55,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(data)
             });
 
-            const contentType = response.headers.get("content-type");
             let result;
+            const contentType = response.headers.get("content-type");
             if (contentType && contentType.includes("application/json")) {
                 result = await response.json();
             } else {
                 result = { message: await response.text() };
             }
+
+            // Reset opacity trước khi hiện thông báo mới
+            messageBox.style.opacity = "1";
 
             if (response.ok) {
                 showStatus(result.message || 'Account created successfully!', 'success');
@@ -73,12 +73,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 showStatus(result.message || 'Registration failed.', 'error');
             }
         } catch (error) {
-            console.error("Fetch Error:", error);
+            messageBox.style.opacity = "1";
             showStatus('Network error!', 'error');
         } finally {
             submitBtn.disabled = false;
             submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            submitBtn.innerText = 'Create Account';
+            submitBtn.innerHTML = 'Create Account';
         }
     });
 });

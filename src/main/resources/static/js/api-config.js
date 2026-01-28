@@ -1,48 +1,36 @@
+// 1. KHÔNG DÙNG IMPORT. Axios đã có sẵn từ CDN trong file HTML
 const http = axios.create({
-    baseURL: 'http://localhost:8080/api',
+    baseURL: 'http://localhost:8080',
+    withCredentials: true,
 });
 
-// 1. Request Interceptor (Vẫn như cũ)
+// 2. Request Interceptor
 http.interceptors.request.use((config) => {
-    const token = localStorage.getItem('accessToken');
-    if (token) config.headers['Authorization'] = `Bearer ${token}`;
     return config;
+}, (error) => {
+    return Promise.reject(error);
 });
 
-// 2. Response Interceptor (Nơi xử lý Logic Refresh)
+// 3. Response Interceptor
 http.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
-
-        // Nếu lỗi 401 và chưa từng thử refresh cho request này
         if (error.response && error.response.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true; // Đánh dấu để tránh lặp vô tận
-
+            originalRequest._retry = true;
             try {
-                // Gọi API refresh (Server sẽ tự đọc Refresh Token từ Cookie)
-                // Lưu ý: Dùng chính axios gốc hoặc một instance khác để tránh interceptor cũ
-                const res = await axios.post('/auth/refresh', {}, { withCredentials: true });
-
-                if (res.status === 200) {
-                    const newAccessToken = res.data.accessToken;
-
-                    // Lưu token mới vào storage
-                    localStorage.setItem('accessToken', newAccessToken);
-
-                    // Cập nhật lại header cho request cũ và thực hiện lại nó
-                    originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-                    return http(originalRequest);
-                }
+                // Gọi API refresh
+                await http.post('/auth/refresh');
+                return http(originalRequest);
             } catch (refreshError) {
-                // Nếu refresh cũng lỗi (hết hạn refresh token) -> Cho cook luôn
-                console.error("Refresh token expired. Logging out...");
-                localStorage.removeItem('accessToken');
+                console.error("Session expired. Redirecting to login...");
                 window.location.href = '/login';
                 return Promise.reject(refreshError);
             }
         }
-
         return Promise.reject(error);
     }
 );
+
+// 4. KHÔNG DÙNG EXPORT DEFAULT. Dùng window để login.js có thể gọi được
+window.api = http;

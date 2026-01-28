@@ -25,4 +25,9 @@ public class HomeController {
     public String getCheckoutPage(Model model){
         return "checkout";
     }
+
+    @GetMapping("movie-booking")
+    public String getMovieBookingPage(Model model){
+        return "movie-booking";
+    }
 }
