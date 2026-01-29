@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>CineBox Admin - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#e60a15",
+                        "background-light": "#f8f5f6",
+                        "background-dark": "#221011",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen">
+<div class="layout-container flex flex-col min-h-screen">
+    <header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-white/10 px-4 lg:px-10 py-3">
+        <div class="max-w-[1280px] mx-auto flex items-center justify-between gap-4">
+            <div class="flex items-center gap-8">
+                <div class="flex items-center gap-2 text-primary">
+                    <span class="material-symbols-outlined text-3xl">movie_filter</span>
+                    <h2 class="text-xl font-bold leading-tight tracking-tight dark:text-white">CineBox <span class="text-primary">Admin</span></h2>
+                </div>
+                <nav class="hidden md:flex items-center gap-6">
+                    <a class="text-primary dark:text-white text-sm font-bold border-b-2 border-primary pb-1" href="/admin">Dashboard</a>
+                    <a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-white text-sm font-medium transition-colors" href="/admin/movies">Movies</a>
+                    <a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-white text-sm font-medium transition-colors" href="#">Bookings</a>
+                    <a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-white text-sm font-medium transition-colors" href="#">Users</a>
+                    <a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-white text-sm font-medium transition-colors" href="#">Settings</a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="hidden sm:flex bg-slate-100 dark:bg-white/5 items-center rounded-lg px-3 py-1.5 border border-slate-200 dark:border-white/10 focus-within:border-primary transition-all">
+                    <span class="material-symbols-outlined text-slate-400 text-lg">search</span>
+                    <input class="bg-transparent border-none focus:ring-0 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 w-48 lg:w-64" placeholder="Search operations..." type="text"/>
+                </div>
+                <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-9 ring-2 ring-primary/20 cursor-pointer" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCZIIvuuqwLV1Xk9DZdiTMn_htTp-GZd6TG0msYkxfg_bw7gKsJVSe-5bhYRnQr2k3awhP_46lx-H_O5RYeo4JMOkNTTwKNNBYQ8Bw_FEvWp8QjEWNHiySakdKsfTLkLWYJxS2JvtKP7dfj_89lQQ86_FLcy-YWmYGIDXmcHqFEiIZgfzQeIIyjw4OPpP8s3ojRqY4evQRbCvMxJSQvamh9gEMe2ejgjQ1eh9-5xV6L5orcKQ2aIZV6KCJCwwQ1UEbxgKNpzBBplua3");'></div>
+            </div>
+        </div>
+    </header>
+    <main class="flex-1 max-w-[1280px] mx-auto w-full px-4 lg:px-10 py-8">
+        <div class="mb-8">
+            <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Admin Dashboard</h1>
+            <p class="text-slate-500 dark:text-slate-400 text-base">Proactive management of your cinema performance and catalog.</p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white dark:bg-white/5 p-5 rounded-xl border border-slate-200 dark:border-white/10">
+                <div class="flex justify-between items-start mb-2">
+                    <div class="p-2 bg-primary/10 rounded-lg text-primary">
+                        <span class="material-symbols-outlined">movie</span>
+                    </div>
+                    <span class="text-xs font-bold text-green-500 flex items-center gap-1 bg-green-500/10 px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-xs">trending_up</span> +3
+                    </span>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Total Movies</p>
+                <div class="flex items-baseline gap-2">
+                    <p class="text-2xl font-black">128</p>
+                    <p class="text-xs text-slate-400 font-medium">vs 125 last week</p>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-white/5 p-5 rounded-xl border border-slate-200 dark:border-white/10">
+                <div class="flex justify-between items-start mb-2">
+                    <div class="p-2 bg-green-500/10 rounded-lg text-green-500">
+                        <span class="material-symbols-outlined">play_circle</span>
+                    </div>
+                    <span class="text-xs font-bold text-slate-400 flex items-center gap-1 bg-slate-400/10 px-2 py-0.5 rounded-full">Static</span>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Now Showing</p>
+                <div class="flex items-baseline gap-2">
+                    <p class="text-2xl font-black">12</p>
+                    <p class="text-xs text-slate-400 font-medium">85% screen occupancy</p>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-white/5 p-5 rounded-xl border border-slate-200 dark:border-white/10">
+                <div class="flex justify-between items-start mb-2">
+                    <div class="p-2 bg-blue-500/10 rounded-lg text-blue-500">
+                        <span class="material-symbols-outlined">upcoming</span>
+                    </div>
+                    <span class="text-xs font-bold text-blue-500 flex items-center gap-1 bg-blue-500/10 px-2 py-0.5 rounded-full">New</span>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Coming Soon</p>
+                <div class="flex items-baseline gap-2">
+                    <p class="text-2xl font-black">24</p>
+                    <p class="text-xs text-slate-400 font-medium">Next: Oppenheimer</p>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-white/5 p-5 rounded-xl border border-slate-200 dark:border-white/10">
+                <div class="flex justify-between items-start mb-2">
+                    <div class="p-2 bg-amber-500/10 rounded-lg text-amber-500">
+                        <span class="material-symbols-outlined">star</span>
+                    </div>
+                    <span class="text-xs font-bold text-red-500 flex items-center gap-1 bg-red-500/10 px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-xs">trending_down</span> -0.2
+                    </span>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Avg Rating</p>
+                <div class="flex items-baseline gap-2">
+                    <p class="text-2xl font-black">8.4</p>
+                    <p class="text-xs text-slate-400 font-medium">Global average</p>
+                </div>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 gap-8">
+            <section>
+                <div class="flex items-center justify-between mb-4 px-1">
+                    <h3 class="text-lg font-bold flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">receipt_long</span>
+                        Purchase History &amp; Booking Status
+                    </h3>
+                    <div class="flex gap-2">
+                        <button class="text-xs font-bold text-primary hover:underline uppercase tracking-wider">View All</button>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                            <tr class="border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5">
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Order ID</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Movie Title</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Cinema/Hall</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Status</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Date &amp; Time</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Contact</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 text-right">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 dark:divide-white/10">
+                            <tr class="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
+                                <td class="px-6 py-4 font-mono text-sm">#CB-90210</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-10 bg-cover bg-center rounded shadow-sm" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBFmwJziJKofVytmAKpiZ42_hhTWsIil6IB11REIEPjUwA3ULokUTuKUTsylCWE_BtdmAq8bx4nTFrFRObnX5clJesKkUbdQXX6NBOlOeAR3Uv_9jhvmojQsTdHscRyJBQsH1O0GMvoSY2hxypXhWmakqFY_p0ctj2L5vcBchdKTNHFAmezYJvcq-Xc_drjk4GHU36kRT0ujBrDx6TXuSgXx2nI01bndTRVzgPd18Dcj7EPOMhvRFPC9S3o_9fBMWx2-lpubXXmfrAd');"></div>
+                                        <span class="font-bold text-sm">Oppenheimer</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-500">Cinema 1 - Hall A</td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase bg-green-500/10 text-green-500">Confirmed</span>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-500">Oct 24, 20:30</td>
+                                <td class="px-6 py-4 text-sm text-slate-500">alex.j@email.com</td>
+                                <td class="px-6 py-4 text-right">
+                                    <button class="text-primary hover:text-red-700 transition-colors">
+                                        <span class="material-symbols-outlined text-lg">visibility</span>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
+                                <td class="px-6 py-4 font-mono text-sm">#CB-88342</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-10 bg-cover bg-center rounded shadow-sm" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBtuoGR5Sl1qUmvQI07zNoTyuBb6XHvUORoVSzHNTgmQCKKIponNNWpLIdYolpv4bS4OMbMga-NqTdbFFagl6Ljc-SpAAN4nmzL05u7Meo6uuLkGtRdMQLj98JrJTif7Xp6BWd5l6aN0ATtgeOuxj0w1opr9Le_wDdDya4HxLlW6vVcBz6hNo-PvOAvVUXqESpH7IhHQDfjM6mhM7sAStKynmZ_RuQL7MHG1XvpH2i92OAeCbPzRqt0RCiHW419auxJejlQAAD97fFQ');"></div>
+                                        <span class="font-bold text-sm">Interstellar</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-500">Cinema 2 - Hall B</td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase bg-amber-500/10 text-amber-500">Pending</span>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-500">Oct 24, 18:15</td>
+                                <td class="px-6 py-4 text-sm text-slate-500">m.smith@email.com</td>
+                                <td class="px-6 py-4 text-right">
+                                    <button class="text-primary hover:text-red-700 transition-colors">
+                                        <span class="material-symbols-outlined text-lg">visibility</span>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
+                                <td class="px-6 py-4 font-mono text-sm">#CB-77421</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-10 bg-cover bg-center rounded shadow-sm" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCQNLRaBr_OnLQrAKZSYMLgX-ig6tq0u3Yft4uLex-_L0lQ_BDGD46UxSplaOc6zF3vXWrTpxN8BJK3W9ZqPrJeZpCX3mFftVaGj1td78BtV1MY7DBn37GqLLDN1J6hgrnMvD5-4xcWL7anAjPl26GVNICmxbIAKkTuILXR5g5yntOKBD8Wz0RuvzvTyJAFcDs3Iv-l-YS2zcgoIl8br2C1JzSsn__WS1a1IyeEHNYgo7Vly6E47YsulAy5A5LZAX_Jy5bU2wjJrkm2');"></div>
+                                        <span class="font-bold text-sm">Inception</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-500">Cinema 1 - Hall C</td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase bg-red-500/10 text-red-500">Cancelled</span>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-500">Oct 23, 14:00</td>
+                                <td class="px-6 py-4 text-sm text-slate-500">sarah_k@email.com</td>
+                                <td class="px-6 py-4 text-right">
+                                    <button class="text-primary hover:text-red-700 transition-colors">
+                                        <span class="material-symbols-outlined text-lg">visibility</span>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
+                                <td class="px-6 py-4 font-mono text-sm">#CB-91043</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-10 bg-cover bg-center rounded shadow-sm" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBFmwJziJKofVytmAKpiZ42_hhTWsIil6IB11REIEPjUwA3ULokUTuKUTsylCWE_BtdmAq8bx4nTFrFRObnX5clJesKkUbdQXX6NBOlOeAR3Uv_9jhvmojQsTdHscRyJBQsH1O0GMvoSY2hxypXhWmakqFY_p0ctj2L5vcBchdKTNHFAmezYJvcq-Xc_drjk4GHU36kRT0ujBrDx6TXuSgXx2nI01bndTRVzgPd18Dcj7EPOMhvRFPC9S3o_9fBMWx2-lpubXXmfrAd');"></div>
+                                        <span class="font-bold text-sm">Oppenheimer</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-500">Cinema 3 - Hall A</td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase bg-green-500/10 text-green-500">Confirmed</span>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-500">Oct 25, 21:00</td>
+                                <td class="px-6 py-4 text-sm text-slate-500">david.lee@email.com</td>
+                                <td class="px-6 py-4 text-right">
+                                    <button class="text-primary hover:text-red-700 transition-colors">
+                                        <span class="material-symbols-outlined text-lg">visibility</span>
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            <section>
+                <div class="flex items-center justify-between mb-4 px-1">
+                    <h3 class="text-lg font-bold flex items-center gap-2">
+                        <span class="material-symbols-outlined text-amber-500">equalizer</span>
+                        Key Performance Indicators
+                    </h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10 p-4">
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="material-symbols-outlined text-green-500 text-lg">thumb_up</span>
+                            <h4 class="text-xs font-bold uppercase tracking-widest text-slate-500">Top 3 Ratings</h4>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium">1. Dune: Part Two</span>
+                                <span class="text-sm font-black text-green-500">9.2</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium">2. Oppenheimer</span>
+                                <span class="text-sm font-black text-green-500">8.9</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium">3. Inception</span>
+                                <span class="text-sm font-black text-green-500">8.8</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10 p-4">
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="material-symbols-outlined text-red-500 text-lg">thumb_down</span>
+                            <h4 class="text-xs font-bold uppercase tracking-widest text-slate-500">Bottom 3 Ratings</h4>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium">1. The Void</span>
+                                <span class="text-sm font-black text-red-500">4.2</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium">2. Sharknado 7</span>
+                                <span class="text-sm font-black text-red-500">2.1</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium">3. Generic Horror 4</span>
+                                <span class="text-sm font-black text-red-500">3.5</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+    <footer class="mt-auto py-8 border-t border-slate-200 dark:border-white/10 text-center">
+        <p class="text-sm text-slate-500 dark:text-slate-400">© 2024 CineBox Entertainment Systems. Admin Dashboard v2.5.0</p>
+    </footer>
+</div>
+<div class="md:hidden fixed bottom-6 right-6">
+    <button class="size-14 rounded-full bg-primary text-white shadow-xl shadow-primary/40 flex items-center justify-center">
+        <span class="material-symbols-outlined text-3xl">add</span>
+    </button>
+</div>
+
+</body></html>

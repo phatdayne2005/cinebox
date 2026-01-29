@@ -8,26 +8,26 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HomeController {
     @GetMapping("/")
     public String getHomePage(Model model) {
-        return "homepage";
+        return "/user/homepage";
     }
 
     @GetMapping("/login")
     public String getLoginPage(Model model){
-        return "login";
+        return "/user/login";
     }
 
     @GetMapping("/register")
     public String getRegisterPage(Model model){
-        return "register";
+        return "/user/register";
     }
 
     @GetMapping("/checkout")
     public String getCheckoutPage(Model model){
-        return "checkout";
+        return "/user/checkout";
     }
 
-    @GetMapping("movie-booking")
+    @GetMapping("/movie-booking")
     public String getMovieBookingPage(Model model){
-        return "movie-booking";
+        return "/user/movie-booking";
     }
 }
