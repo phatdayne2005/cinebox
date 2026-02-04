@@ -41,8 +41,4 @@ public class AuthenticationController {
         authenticationService.logout(accessToken, refreshToken, httpServletResponse);
     }
 
-    @PostMapping("/auth/refresh")
-    public void refreshToken(@CookieValue(name = "refresh_token") String refreshToken, HttpServletResponse httpServletResponse) throws ParseException, JOSEException {
-        this.authenticationService.refreshToken(refreshToken, httpServletResponse);
-    }
 }

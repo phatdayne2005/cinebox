@@ -119,41 +119,4 @@ public class AuthenticationService {
 
         response.addCookie(refreshCookies);
     }
-
-    public void refreshToken(String refreshToken, HttpServletResponse httpServletResponse) throws ParseException, JOSEException {
-        // Kiểm tra refresh token có hợp lệ không vì là API public
-        if (!jwtService.validateRefreshToken(refreshToken)) {
-            removeTokenCookie(httpServletResponse, refreshToken);
-            throw new RuntimeException("Refresh token is invalid");
-        }
-
-        // Lấy thông tin cần thiết
-        SignedJWT signedJWT = SignedJWT.parse(refreshToken);
-        String email = signedJWT.getJWTClaimsSet().getSubject();
-        String jwtId = signedJWT.getJWTClaimsSet().getJWTID();
-        User user = userService.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
-        long expiredTime = signedJWT.getJWTClaimsSet().getExpirationTime().getTime();
-        long sevenDaysInMiliseconds = TimeUnit.DAYS.toMillis(7);
-        // Nếu Refresh token còn hạn sử dụng <= 7 ngày, cấp Refresh token mới
-        if (expiredTime - System.currentTimeMillis() <=  sevenDaysInMiliseconds) {
-            // Generate Refresh Token mới và lưu vào cookies
-            TokenPayload refreshPayload = this.jwtService.generateRefreshToken(user);
-            setRefreshTokenCookie(httpServletResponse, refreshPayload);
-            // Xóa Refresh Token cũ
-            this.redisValidRefreshTokenRepository.deleteById(jwtId);
-            // Lưu Refresh Token mới vào Redis
-            long ttlInMilliseconds = refreshPayload.getExpiredTime().getTime() - System.currentTimeMillis();
-            redisValidRefreshTokenRepository.save(RedisValidRefreshToken
-                    .builder()
-                    .jwtId(refreshPayload.getJwtId())
-                    .expirationTime(ttlInMilliseconds)
-                    .build()
-            );
-        }
-        // Cấp Access Token mới
-        TokenPayload newAccessPayload = jwtService.generateAccessToken(user);
-
-        // Set access token cookies mới
-        setAccessTokenCookie(httpServletResponse, newAccessPayload);
-    }
 }

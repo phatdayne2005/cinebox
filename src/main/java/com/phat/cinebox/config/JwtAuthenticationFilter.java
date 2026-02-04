@@ -1,7 +1,9 @@
 package com.phat.cinebox.config;
 
 import com.nimbusds.jose.JOSEException;
+import com.phat.cinebox.dto.TokenPayload;
 import com.phat.cinebox.model.User;
+import com.phat.cinebox.service.AuthenticationService;
 import com.phat.cinebox.service.JwtService;
 import com.phat.cinebox.service.UserService;
 import jakarta.servlet.FilterChain;
@@ -11,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -30,45 +33,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // 1. Trích xuất token từ header
-        String token = extractToken(request);
-        String path = request.getRequestURI();
+        // 1. Trích xuất token từ cookies
+        String accessToken = extractTokenFormCookies(request, "access_token");
+        String refreshToken = extractTokenFormCookies(request, "refresh_token");
 
-        // 2. Xác thực token từ header
+        // 2. Xác thực token từ cookies
+        boolean authenticated = false;
         try {
-            if (token != null) {
-                if (!path.equals("/auth/refresh") && jwtService.validateRefreshToken(token)) {
-                    // Trả về lỗi 401
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.getWriter().write("Only access token can use this API");
-                    return;
+            if (accessToken != null) {
+                if (jwtService.validateAccessToken(accessToken)) {
+                    setUpAuthentication(request, accessToken);
+                    authenticated = true;
                 }
-                if (jwtService.validateAccessToken(token)) {
-
-                    // 3. Nếu OK, lấy thông tin User, lưu vào Security Context để xác nhận request đã được xác thực thành công
-                    String username = null;
-                    try {
-                        username = jwtService.extractUsername(token);
-                    } catch (ParseException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                    User user = userService.findByEmail(username).orElseThrow(() -> new RuntimeException("User not found"));
-
-                    List<SimpleGrantedAuthority> authorities = null;
-
-                    try {
-                        authorities = jwtService.extractRoles(token);
-                    } catch (ParseException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                    UsernamePasswordAuthenticationToken auth =
-                            new UsernamePasswordAuthenticationToken(user, null, authorities);
-
-                    // Đây là dòng quan trọng nhất để thay thế cơ chế tự động của Spring:
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                }
+            }
+            if (refreshToken != null && !authenticated) {
+                TokenPayload newAccessToken = jwtService.refreshToken(refreshToken, response);
+                setUpAuthentication(request, newAccessToken.getToken());
             }
         } catch (ParseException | JOSEException e) {
             throw new RuntimeException(e);
@@ -78,14 +58,40 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private String extractToken(HttpServletRequest request) {
+    private String extractTokenFormCookies(HttpServletRequest request, String cookieName) {
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
-                if ("access_token".equals(cookie.getName())) {
+                if (cookieName.equals(cookie.getName())) {
                     return cookie.getValue();
                 }
             }
         }
         return null;
+    }
+
+    private void setUpAuthentication(HttpServletRequest request, String accessToken) {
+        // 3. Nếu OK, lấy thông tin User, lưu vào Security Context để xác nhận request đã được xác thực thành công
+        String username = null;
+        try {
+            username = jwtService.extractUsername(accessToken);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+
+        User user = userService.findByEmail(username).orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<SimpleGrantedAuthority> authorities = null;
+
+        try {
+            authorities = jwtService.extractRoles(accessToken);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(user, null, authorities);
+
+        // Đây là dòng quan trọng nhất để thay thế cơ chế tự động của Spring:
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 }
