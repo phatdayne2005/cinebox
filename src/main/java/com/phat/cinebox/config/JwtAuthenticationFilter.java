@@ -48,10 +48,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
             if (refreshToken != null && !authenticated) {
                 TokenPayload newAccessToken = jwtService.refreshToken(refreshToken, response);
-                setUpAuthentication(request, newAccessToken.getToken());
+                if (newAccessToken != null) {
+                    setUpAuthentication(request, newAccessToken.getToken());
+                }
             }
-        } catch (ParseException | JOSEException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            SecurityContextHolder.clearContext();
         }
 
         // Cho phép request đi tiếp vào Controller

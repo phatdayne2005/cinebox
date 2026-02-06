@@ -1,16 +1,10 @@
 package com.phat.cinebox.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "movies")
@@ -42,6 +36,8 @@ public class Movie {
     @Positive(message = "Duration must be positive")
     private int duration;
 
+    @Min(0)
+    @Max(10)
     private double rating;
 
     @NotBlank(message = "Director's name cannot be blank")
@@ -50,10 +46,16 @@ public class Movie {
     @NotBlank(message = "Cast's name cannot be blank")
     private String cast;
 
-    private String poster_url;
+    private String posterUrl;
 
-    private String trailer_url;
+    private String backdropUrl;
+
+    private String trailerUrl;
+
+    private Date releaseDate;
 
     @Enumerated(EnumType.STRING)
     private MovieStatus status;
+
+    private boolean isFeaturedMovie = false;
 }
