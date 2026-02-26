@@ -12,6 +12,10 @@ spring:
     hibernate:
       ddl-auto: update
 
+  jackson:
+    deserialization:
+      fail-on-null-for-primitives: false
+
   data:
     redis:
       host: localhost

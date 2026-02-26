@@ -93,6 +93,15 @@
                     <div
                         class="absolute right-0 mt-2 w-48 bg-background-dark border border-white/10 rounded-xl shadow-2xl opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 z-50 overflow-hidden">
                         <div class="py-2">
+                            <th:block sec:authorize="hasRole('ADMIN')">
+                                <a href="/admin"
+                                    class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-white/5 hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]">admin_panel_settings</span>
+                                    Trang quản trị
+                                </a>
+                                <hr class="border-white/5 my-1">
+                            </th:block>
+
                             <a href="/profile"
                                 class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-white/5 hover:text-primary transition-colors">
                                 <span class="material-symbols-outlined text-[20px]">person</span>
@@ -114,36 +123,54 @@
     </header>
     <main class="max-w-7xl mx-auto pb-20 px-4 lg:px-0">
         <section class="mt-8 mb-12">
-            <div class="relative overflow-hidden rounded-2xl h-[580px] group">
-                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                    data-alt="Dune Part Two cinematic movie poster banner"
-                    style='background-image: linear-gradient(to right, rgba(15, 8, 9, 0.95) 0%, rgba(15, 8, 9, 0.4) 50%, rgba(15, 8, 9, 0.1) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuDitthABdVqFQpT2rsoBQV3tVohpPPI_RKLt5dN0w_TCydYeqJBW_g4pJtJkV2n-PuH3W55QfB23PG1AFh3EmXrIj5GpHxnTSl1aXSNAQHlJ5-GeNAR7hGt2bmTpVscN2qaj9DkY1Vd_WK0TVFnWOTsllPSaFYhoFmMJVyZCxrC-MKGcko_MCuIySqmf3zGk8o0hyGqrD6uwXAaDk9dmmVdtEFD25ec65KAKuOoIwIVqwh9qqekY4GkAbHLjsYYHF0K9kBMvx-Ehzdi");'>
+            <div id="featured-movie-banner" class="relative overflow-hidden rounded-2xl h-[580px] group">
+                <!-- Backdrop -->
+                <div id="featured-backdrop"
+                    class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                    style="background-image: linear-gradient(to right, rgba(15,8,9,0.95) 0%, rgba(15,8,9,0.4) 50%, rgba(15,8,9,0.1) 100%), url('');">
                 </div>
+                <!-- Content -->
                 <div class="absolute inset-0 flex flex-col justify-center px-10 lg:px-20 max-w-2xl gap-6">
-                    <div
+                    <!-- Categories badge -->
+                    <div id="featured-categories"
                         class="inline-flex items-center gap-2 px-3 py-1 bg-primary/20 border border-primary/50 rounded-full w-fit">
                         <span class="material-symbols-outlined text-primary text-sm">stars</span>
-                        <span class="text-primary text-xs font-bold uppercase tracking-widest">IMAX Exclusive</span>
+                        <span id="featured-categories-text"
+                            class="text-primary text-xs font-bold uppercase tracking-widest"></span>
                     </div>
-                    <h1 class="text-white text-6xl lg:text-7xl font-black leading-none tracking-tight">Dune: <br /><span
-                            class="text-primary">Part Two</span></h1>
-                    <p class="text-slate-300 text-lg leading-relaxed font-medium">
-                        Follow the mythic journey of Paul Atreides as he unites with Chani and the Fremen while on a
-                        warpath of revenge against the conspirators who destroyed his family.
-                    </p>
+                    <!-- Title -->
+                    <h1 id="featured-title"
+                        class="text-white text-6xl lg:text-7xl font-black leading-none tracking-tight"></h1>
+                    <!-- Description -->
+                    <p id="featured-description" class="text-slate-300 text-lg leading-relaxed font-medium"></p>
+                    <!-- Actions -->
                     <div class="flex items-center gap-4 pt-4">
-                        <a href="/movie-booking">
+                        <a id="featured-book-btn" href="/movie-booking">
                             <button
                                 class="flex items-center gap-2 bg-primary hover:bg-red-700 text-white px-10 py-4 rounded-xl font-black text-lg transition-all shadow-lg shadow-primary/20">
                                 <span class="material-symbols-outlined">confirmation_number</span>
                                 Book Now
                             </button>
                         </a>
-                        <button
+                        <button id="featured-trailer-btn"
                             class="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-8 py-4 rounded-xl font-bold transition-all border border-white/10">
                             <span class="material-symbols-outlined">play_circle</span>
                             Watch Trailer
                         </button>
+                    </div>
+                </div>
+                <!-- Loading skeleton overlay -->
+                <div id="featured-skeleton"
+                    class="absolute inset-0 bg-slate-800 animate-pulse flex items-end px-10 lg:px-20 pb-16 gap-4">
+                    <div class="flex flex-col gap-4 max-w-lg w-full">
+                        <div class="h-4 w-28 bg-slate-700 rounded-full"></div>
+                        <div class="h-16 w-3/4 bg-slate-700 rounded-xl"></div>
+                        <div class="h-4 w-full bg-slate-700 rounded"></div>
+                        <div class="h-4 w-5/6 bg-slate-700 rounded"></div>
+                        <div class="flex gap-4 mt-2">
+                            <div class="h-14 w-40 bg-slate-700 rounded-xl"></div>
+                            <div class="h-14 w-36 bg-slate-700 rounded-xl"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -473,7 +500,49 @@
         document.addEventListener('DOMContentLoaded', () => {
             enableDragToScroll('now-showing-list');
             enableDragToScroll('coming-soon-list');
+            loadFeaturedMovie();
         });
+
+        async function loadFeaturedMovie() {
+            try {
+                const res = await window.api.get('/get-featured-movie');
+                const movie = res.data;
+
+                // Backdrop
+                const backdrop = document.getElementById('featured-backdrop');
+                backdrop.style.backgroundImage =
+                    `linear-gradient(to right, rgba(15,8,9,0.95) 0%, rgba(15,8,9,0.4) 50%, rgba(15,8,9,0.1) 100%), url('${movie.backdropUrl}')`;
+
+                // Title
+                document.getElementById('featured-title').textContent = movie.title;
+
+                // Description
+                document.getElementById('featured-description').textContent = movie.description;
+
+                // Categories
+                const cats = Array.isArray(movie.categories) ? movie.categories.join(' • ') : '';
+                document.getElementById('featured-categories-text').textContent = cats;
+
+                // Trailer button
+                const trailerBtn = document.getElementById('featured-trailer-btn');
+                if (movie.trailerUrl) {
+                    trailerBtn.addEventListener('click', () => {
+                        window.open(movie.trailerUrl, '_blank');
+                    });
+                } else {
+                    trailerBtn.style.display = 'none';
+                }
+
+                // Hide skeleton
+                document.getElementById('featured-skeleton').style.display = 'none';
+            } catch (err) {
+                console.error('Failed to load featured movie:', err);
+                // Hide skeleton, show a fallback message
+                const skeleton = document.getElementById('featured-skeleton');
+                skeleton.classList.remove('animate-pulse');
+                skeleton.innerHTML = '<p class="text-slate-400 text-sm m-auto">Unable to load featured movie.</p>';
+            }
+        }
     </script>
 </body>
 

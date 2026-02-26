@@ -14,7 +14,8 @@ import com.phat.cinebox.repository.RedisValidRefreshTokenRepository;
 import com.phat.cinebox.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,7 +26,6 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 @Service
-@RequiredArgsConstructor
 public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
@@ -33,8 +33,22 @@ public class AuthenticationService {
     private final RedisValidRefreshTokenRepository redisValidRefreshTokenRepository;
     private final UserService userService;
 
+    public AuthenticationService(
+            @Lazy AuthenticationManager authenticationManager,
+            JwtService jwtService,
+            RedisInvalidAccessTokenRepository redisInvalidAccessTokenRepository,
+            RedisValidRefreshTokenRepository redisValidRefreshTokenRepository,
+            UserService userService) {
+        this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
+        this.redisInvalidAccessTokenRepository = redisInvalidAccessTokenRepository;
+        this.redisValidRefreshTokenRepository = redisValidRefreshTokenRepository;
+        this.userService = userService;
+    }
+
     public void login(LoginRequest loginRequest, HttpServletResponse httpServletResponse) {
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                loginRequest.getUsername(), loginRequest.getPassword());
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
         User user = (User) authentication.getPrincipal();
         TokenPayload accessPayload = this.jwtService.generateAccessToken(user);
@@ -43,10 +57,9 @@ public class AuthenticationService {
         // Lưu Refresh Token vào Redis
         redisValidRefreshTokenRepository.save(RedisValidRefreshToken
                 .builder()
-                        .jwtId(refreshPayload.getJwtId())
-                        .expirationTime(ttlInMilliseconds)
-                .build()
-        );
+                .jwtId(refreshPayload.getJwtId())
+                .expirationTime(ttlInMilliseconds)
+                .build());
         // Set Access Token và Refresh Token vào cookies trình duyệt
         setAccessTokenCookie(httpServletResponse, accessPayload);
         // Set Refresh Token vào cookies trình duyệt
@@ -56,7 +69,7 @@ public class AuthenticationService {
     public void logout(String accessToken, String refreshToken, HttpServletResponse response) throws ParseException {
         // Lấy các thông tin cần thiết
         JwtInfo jwtInfo = jwtService.parseToken(accessToken);
-        String jwtId =  jwtInfo.getJwtId();
+        String jwtId = jwtInfo.getJwtId();
         Date issueTime = jwtInfo.getIssueTime();
         Date expirationTime = jwtInfo.getExpirationTime();
 
@@ -76,9 +89,9 @@ public class AuthenticationService {
         redisInvalidAccessTokenRepository.save(redisInvalidAccessToken);
 
         // Xóa Refresh Token trong cookies nếu có
-        if (refreshToken != null && !refreshToken.isEmpty()){
+        if (refreshToken != null && !refreshToken.isEmpty()) {
             jwtInfo = jwtService.parseToken(refreshToken);
-            jwtId =  jwtInfo.getJwtId();
+            jwtId = jwtInfo.getJwtId();
             if (redisValidRefreshTokenRepository.existsById(jwtId))
                 redisValidRefreshTokenRepository.deleteById(jwtId);
         }

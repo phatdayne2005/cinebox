@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Entity
@@ -52,7 +53,7 @@ public class Movie {
 
     private String trailerUrl;
 
-    private Date releaseDate;
+    private LocalDate releaseDate;
 
     @Enumerated(EnumType.STRING)
     private MovieStatus status;

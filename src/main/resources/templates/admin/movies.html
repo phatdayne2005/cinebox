@@ -47,7 +47,7 @@
         textarea:focus {
             outline: none !important;
             border-color: #e60a15 !important;
-            ring: 0 !important;
+            box-shadow: none !important;
         }
     </style>
     <script>
@@ -66,6 +66,54 @@
                 if (fab) fab.classList.remove('hidden');
             }
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('add-movie-form');
+            if (!form) return;
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault(); // Chặn submit mặc định (application/x-www-form-urlencoded)
+
+                const fd = new FormData(form);
+
+                // Collect categoryIds as number array (checkbox)
+                const categoryIds = fd.getAll('categoryIds').map(Number);
+
+                const payload = {
+                    title: fd.get('title') || null,
+                    description: fd.get('description') || null,
+                    director: fd.get('director') || null,
+                    cast: fd.get('cast') || null,
+                    duration: fd.get('duration') ? parseInt(fd.get('duration')) : null,
+                    rating: fd.get('rating') ? parseFloat(fd.get('rating')) : 0,
+                    releaseDate: fd.get('releaseDate') || null,
+                    posterUrl: fd.get('posterUrl') || null,
+                    backdropUrl: fd.get('backdropUrl') || null,
+                    trailerUrl: fd.get('trailerUrl') || null,
+                    status: fd.get('status') || null,
+                    featuredMovie: fd.get('featuredMovie') === 'on' || fd.get('featuredMovie') === 'true',
+                    categoryIds: categoryIds
+                };
+
+                try {
+                    const res = await fetch(form.action, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (res.ok) {
+                        toggleView(false);      // Quay về danh sách
+                        location.reload();      // Reload để cập nhật bảng phim
+                    } else {
+                        const msg = await res.text();
+                        alert('Lưu thất bại: ' + msg);
+                    }
+                } catch (err) {
+                    alert('Lỗi kết nối: ' + err.message);
+                }
+            });
+        });
     </script>
 </head>
 
@@ -417,7 +465,7 @@
                         <div class="flex items-center gap-3">
                             <button onclick="toggleView(false)"
                                 class="px-5 py-2.5 rounded-lg text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-white/10 transition-all">Cancel</button>
-                            <button
+                            <button type="submit" form="add-movie-form"
                                 class="flex items-center gap-2 bg-primary hover:bg-red-700 text-white px-6 py-2.5 rounded-lg text-sm font-bold transition-all shadow-lg shadow-primary/20">
                                 <span class="material-symbols-outlined text-lg">save</span>
                                 <span>Save Movie</span>
@@ -425,8 +473,12 @@
                         </div>
                     </div>
                 </div>
-                <form class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!--/*@thymesVar id="movie" type="com.phat.cinebox.model.Movie"*/-->
+                <!--/*@thymesVar id="allCategories" type="java.util.List<com.phat.cinebox.model.Category>"*/-->
+                <form id="add-movie-form" class="grid grid-cols-1 lg:grid-cols-12 gap-8" th:action="@{/admin/movies}"
+                    th:object="${movie}" method="post">
                     <div class="lg:col-span-8 space-y-6">
+                        <!-- General Information -->
                         <section
                             class="bg-white dark:bg-white/5 p-6 rounded-xl border border-slate-200 dark:border-white/10">
                             <h3
@@ -435,47 +487,43 @@
                                 General Information
                             </h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- title -->
                                 <div class="md:col-span-2">
                                     <label
-                                        class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Movie
-                                        Title</label>
-                                    <input
+                                        class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">
+                                        Movie Title <span class="text-primary">*</span></label>
+                                    <input th:field="*{title}"
                                         class="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 transition-all"
                                         placeholder="Enter full movie title" type="text" />
+                                    <p th:if="${#fields.hasErrors('title')}" th:errors="*{title}"
+                                        class="mt-1 text-xs text-red-500"></p>
                                 </div>
+                                <!-- description -->
                                 <div class="md:col-span-2">
                                     <label
                                         class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Synopsis</label>
-                                    <textarea
+                                    <textarea th:field="*{description}"
                                         class="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 transition-all"
                                         placeholder="Brief description of the movie..." rows="4"></textarea>
                                 </div>
-                                <div>
+                                <!-- categories — rendered from DB via th:each -->
+                                <div class="md:col-span-2">
                                     <label
-                                        class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Genre</label>
-                                    <select
-                                        class="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-4 py-3 text-slate-900 dark:text-white appearance-none focus:ring-0">
-                                        <option value="">Select Genre</option>
-                                        <option>Action</option>
-                                        <option>Sci-Fi</option>
-                                        <option>Drama</option>
-                                        <option>Comedy</option>
-                                        <option>Horror</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label
-                                        class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Language</label>
-                                    <select
-                                        class="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-4 py-3 text-slate-900 dark:text-white appearance-none focus:ring-0">
-                                        <option>English</option>
-                                        <option>Vietnamese</option>
-                                        <option>Japanese</option>
-                                        <option>Korean</option>
-                                    </select>
+                                        class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Genres</label>
+                                    <div class="flex flex-wrap gap-2">
+                                        <label th:each="cat : ${allCategories}"
+                                            class="flex items-center gap-1.5 cursor-pointer px-3 py-1.5 rounded-full border border-slate-200 dark:border-white/10 hover:border-primary transition-all has-[:checked]:bg-primary/10 has-[:checked]:border-primary has-[:checked]:text-primary text-sm font-medium">
+                                            <input type="checkbox" name="categoryIds" th:value="${cat.id}"
+                                                th:checked="${movie.categories != null and #sets.contains(movie.categories, cat)}"
+                                                class="hidden" />
+                                            <span th:text="${cat.name}">Genre</span>
+                                        </label>
+                                    </div>
+                                    <p class="mt-1 text-[10px] text-slate-400">Chọn một hoặc nhiều thể loại</p>
                                 </div>
                             </div>
                         </section>
+                        <!-- Technical Details -->
                         <section
                             class="bg-white dark:bg-white/5 p-6 rounded-xl border border-slate-200 dark:border-white/10">
                             <h3
@@ -484,52 +532,66 @@
                                 Technical Details
                             </h3>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <!-- duration -->
                                 <div>
                                     <label
-                                        class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Duration
-                                        (min)</label>
-                                    <input
+                                        class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">
+                                        Duration (min) <span class="text-primary">*</span></label>
+                                    <input th:field="*{duration}"
                                         class="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-4 py-3 text-slate-900 dark:text-white transition-all"
-                                        placeholder="e.g. 120" type="number" />
+                                        placeholder="e.g. 120" type="number" min="1" />
+                                    <p th:if="${#fields.hasErrors('duration')}" th:errors="*{duration}"
+                                        class="mt-1 text-xs text-red-500"></p>
                                 </div>
+                                <!-- releaseDate -->
                                 <div>
                                     <label
                                         class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Release
                                         Date</label>
-                                    <input
+                                    <input th:field="*{releaseDate}"
                                         class="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-4 py-3 text-slate-900 dark:text-white transition-all"
                                         type="date" />
                                 </div>
+                                <!-- rating — double 0-10, NOT PG/G/R -->
                                 <div>
                                     <label
-                                        class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Rating</label>
-                                    <select
-                                        class="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-4 py-3 text-slate-900 dark:text-white appearance-none focus:ring-0">
-                                        <option>G (General)</option>
-                                        <option>PG</option>
-                                        <option>PG-13</option>
-                                        <option>R (Restricted)</option>
-                                        <option>NC-17</option>
-                                    </select>
+                                        class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">
+                                        Rating
+                                        <span class="text-slate-400 normal-case font-normal">(0 – 10)</span></label>
+                                    <input th:field="*{rating}"
+                                        class="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-4 py-3 text-slate-900 dark:text-white transition-all"
+                                        placeholder="e.g. 8.4" type="number" min="0" max="10" step="0.1" />
+                                    <p th:if="${#fields.hasErrors('rating')}" th:errors="*{rating}"
+                                        class="mt-1 text-xs text-red-500"></p>
                                 </div>
+                                <!-- director -->
                                 <div>
                                     <label
-                                        class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Director</label>
-                                    <input
+                                        class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">
+                                        Director <span class="text-primary">*</span></label>
+                                    <input th:field="*{director}"
                                         class="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-4 py-3 text-slate-900 dark:text-white transition-all"
                                         placeholder="Full name" type="text" />
+                                    <p th:if="${#fields.hasErrors('director')}" th:errors="*{director}"
+                                        class="mt-1 text-xs text-red-500"></p>
                                 </div>
+                                <!-- cast -->
                                 <div class="md:col-span-2">
                                     <label
-                                        class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Cast</label>
-                                    <input
+                                        class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">
+                                        Cast <span class="text-primary">*</span></label>
+                                    <input th:field="*{cast}"
                                         class="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-4 py-3 text-slate-900 dark:text-white transition-all"
-                                        placeholder="Names separated by comma" type="text" />
+                                        placeholder="e.g. Tom Hanks, Meryl Streep" type="text" />
+                                    <p th:if="${#fields.hasErrors('cast')}" th:errors="*{cast}"
+                                        class="mt-1 text-xs text-red-500"></p>
                                 </div>
                             </div>
                         </section>
                     </div>
+
                     <div class="lg:col-span-4 space-y-6">
+                        <!-- Media Assets — URL inputs matching posterUrl, backdropUrl, trailerUrl -->
                         <section
                             class="bg-white dark:bg-white/5 p-6 rounded-xl border border-slate-200 dark:border-white/10">
                             <h3
@@ -537,34 +599,55 @@
                                 <span class="material-symbols-outlined text-lg">image</span>
                                 Media Assets
                             </h3>
-                            <div class="space-y-6">
+                            <div class="space-y-5">
+                                <!-- posterUrl -->
                                 <div>
                                     <label
-                                        class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Movie
-                                        Poster</label>
-                                    <div
-                                        class="border-2 border-dashed border-slate-200 dark:border-white/10 rounded-xl p-8 flex flex-col items-center justify-center text-center group hover:border-primary transition-all cursor-pointer">
+                                        class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">
+                                        Poster URL
+                                        <span class="text-slate-400 normal-case font-normal">(vertical
+                                            2:3)</span></label>
+                                    <div class="relative flex items-center">
                                         <span
-                                            class="material-symbols-outlined text-4xl text-slate-400 group-hover:text-primary mb-2">add_photo_alternate</span>
-                                        <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Click or drag
-                                            to upload<br /><span class="text-[10px] opacity-60">Vertical 2:3 ratio, max
-                                                2MB</span></p>
+                                            class="material-symbols-outlined text-slate-400 text-lg absolute left-3 pointer-events-none">link</span>
+                                        <input th:field="*{posterUrl}"
+                                            class="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg pl-9 pr-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 transition-all"
+                                            placeholder="https://..." type="url" />
                                     </div>
                                 </div>
+                                <!-- backdropUrl -->
                                 <div>
                                     <label
-                                        class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Banner
-                                        Backdrop</label>
-                                    <div
-                                        class="border-2 border-dashed border-slate-200 dark:border-white/10 rounded-xl p-4 flex flex-col items-center justify-center text-center group hover:border-primary transition-all cursor-pointer aspect-video">
+                                        class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">
+                                        Backdrop URL
+                                        <span class="text-slate-400 normal-case font-normal">(16:9
+                                            landscape)</span></label>
+                                    <div class="relative flex items-center">
                                         <span
-                                            class="material-symbols-outlined text-3xl text-slate-400 group-hover:text-primary mb-2">add_photo_alternate</span>
-                                        <p class="text-[10px] font-medium text-slate-500 dark:text-slate-400">16:9 ratio
-                                            landscape</p>
+                                            class="material-symbols-outlined text-slate-400 text-lg absolute left-3 pointer-events-none">link</span>
+                                        <input th:field="*{backdropUrl}"
+                                            class="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg pl-9 pr-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 transition-all"
+                                            placeholder="https://..." type="url" />
+                                    </div>
+                                </div>
+                                <!-- trailerUrl — was MISSING from the original form -->
+                                <div>
+                                    <label
+                                        class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">
+                                        Trailer URL
+                                        <span class="text-slate-400 normal-case font-normal">(YouTube /
+                                            embed)</span></label>
+                                    <div class="relative flex items-center">
+                                        <span
+                                            class="material-symbols-outlined text-slate-400 text-lg absolute left-3 pointer-events-none">smart_display</span>
+                                        <input th:field="*{trailerUrl}"
+                                            class="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg pl-9 pr-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 transition-all"
+                                            placeholder="https://youtube.com/embed/..." type="url" />
                                     </div>
                                 </div>
                             </div>
                         </section>
+                        <!-- Publishing -->
                         <section
                             class="bg-white dark:bg-white/5 p-6 rounded-xl border border-slate-200 dark:border-white/10">
                             <h3
@@ -573,36 +656,42 @@
                                 Publishing
                             </h3>
                             <div class="space-y-4">
+                                <!-- status — values match MovieStatus enum exactly -->
                                 <div>
                                     <label
                                         class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Status</label>
                                     <div class="grid grid-cols-2 gap-2">
                                         <label class="cursor-pointer">
-                                            <input checked="" class="hidden peer" name="status" type="radio" />
+                                            <input th:field="*{status}" th:value="NOWSHOWING" class="hidden peer"
+                                                type="radio" />
                                             <div
                                                 class="text-center p-2 text-xs font-bold rounded-lg border border-slate-200 dark:border-white/10 peer-checked:bg-primary/10 peer-checked:border-primary peer-checked:text-primary transition-all">
                                                 Now Showing</div>
                                         </label>
                                         <label class="cursor-pointer">
-                                            <input class="hidden peer" name="status" type="radio" />
+                                            <input th:field="*{status}" th:value="COMINGSOON" class="hidden peer"
+                                                type="radio" />
                                             <div
                                                 class="text-center p-2 text-xs font-bold rounded-lg border border-slate-200 dark:border-white/10 peer-checked:bg-blue-500/10 peer-checked:border-blue-500 peer-checked:text-blue-500 transition-all">
                                                 Coming Soon</div>
                                         </label>
                                     </div>
                                 </div>
+                                <!-- isFeaturedMovie — th:field maps to getFeaturedMovie() getter via Lombok -->
                                 <div
                                     class="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/5 rounded-lg border border-slate-200 dark:border-white/10">
                                     <div class="flex flex-col">
                                         <span class="text-sm font-bold">Featured Movie</span>
                                         <span class="text-[10px] text-slate-500">Show in main carousel</span>
                                     </div>
-                                    <div class="relative inline-flex items-center cursor-pointer">
-                                        <input class="sr-only peer" type="checkbox" value="" />
+                                    <label for="featuredMovieToggle"
+                                        class="relative inline-flex items-center cursor-pointer">
+                                        <input id="featuredMovieToggle" name="featuredMovie" class="sr-only peer"
+                                            type="checkbox" />
                                         <div
                                             class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary">
                                         </div>
-                                    </div>
+                                    </label>
                                 </div>
                             </div>
                         </section>

@@ -27,6 +27,10 @@ public class Showtime {
     @JoinColumn(name = "room_id")
     private Room room;
 
+    @ManyToOne
+    @JoinColumn(name = "movie_id")
+    private Movie movie;
+
     private Date startTime;
 
     private Date endTime;
