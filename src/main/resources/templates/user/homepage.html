@@ -127,7 +127,7 @@
                 <!-- Backdrop -->
                 <div id="featured-backdrop"
                     class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                    style="background-image: linear-gradient(to right, rgba(15,8,9,0.95) 0%, rgba(15,8,9,0.4) 50%, rgba(15,8,9,0.1) 100%), url('');">
+                    style="background-image: none;">
                 </div>
                 <!-- Content -->
                 <div class="absolute inset-0 flex flex-col justify-center px-10 lg:px-20 max-w-2xl gap-6">
@@ -505,7 +505,7 @@
 
         async function loadFeaturedMovie() {
             try {
-                const res = await window.api.get('/get-featured-movie');
+                const res = await window.api.get('/api/movies/featured');
                 const movie = res.data;
 
                 // Backdrop

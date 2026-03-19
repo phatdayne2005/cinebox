@@ -6,10 +6,14 @@ import com.phat.cinebox.model.Movie;
 import com.phat.cinebox.repository.CategoryRepository;
 import com.phat.cinebox.repository.MovieRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,12 +23,44 @@ public class MovieService {
 
     public MovieResponse getFeatureMovie(){
         Movie movie = movieRepository.findFirstByIsFeaturedMovieTrue();
+        return movieMapping(movie);
+    }
+
+    public Page<MovieResponse> getAllMovies(Pageable pageable) {
+        // 1. Lấy dữ liệu từ Database (trả về Page<Movie>)
+        Page<Movie> moviePage = this.movieRepository.findAll(pageable);
+
+        // 2. Chuyển đổi Page<Movie> sang Page<MovieResponse>
+        // Sử dụng method reference để gọi hàm movieMapping cho từng phần tử
+        return moviePage.map(this::movieMapping);
+    }
+
+    public MovieResponse getMovieDetail(Long id){
+        Optional<Movie> movieOptional = movieRepository.findById(id);
+        if (movieOptional.isPresent()){
+            Movie movie = movieOptional.get();
+            return movieMapping(movie);
+        }
+        else {
+            return null;
+        }
+    }
+
+    @Transactional
+    public Long deleteMovie(Long id){
+        return movieRepository.removeById(id);
+    }
+
+    private MovieResponse movieMapping(Movie movie){
+        if (movie == null)
+            return null;
         MovieResponse movieResponse = new MovieResponse();
+        movieResponse.setId(movie.getId());
         movieResponse.setTitle(movie.getTitle());
         movieResponse.setDescription(movie.getDescription());
         movieResponse.setRating(movie.getRating());
         movieResponse.setReleaseDate(movie.getReleaseDate());
-        movieResponse.setFeaturedMovie(movieResponse.isFeaturedMovie());
+        movieResponse.setFeaturedMovie(movie.isFeaturedMovie());
         movieResponse.setCast(movie.getCast());
         movieResponse.setDirector(movie.getDirector());
         List<String> categories = new ArrayList<>();

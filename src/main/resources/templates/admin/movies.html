@@ -51,6 +51,9 @@
         }
     </style>
     <script>
+        let currentPage = 1;
+        const pageSize = 10;
+
         function toggleView(showCreate) {
             const listView = document.getElementById('movies-list-view');
             const createView = document.getElementById('create-movie-view');
@@ -67,16 +70,256 @@
             }
         }
 
+        async function loadMovies(page = 1) {
+            currentPage = page;
+            try {
+                const res = await fetch(`/api/movies?page=${page}&size=${pageSize}`);
+                if (!res.ok) throw new Error('Failed to fetch movies');
+                const data = await res.json();
+                renderTable(data.content);
+                renderPagination(data);
+                renderStats(data);
+            } catch (err) {
+                document.getElementById('movies-tbody').innerHTML =
+                    `<tr><td colspan="6" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400">Failed to load movies: ${err.message}</td></tr>`;
+            }
+        }
+
+        function renderTable(movies) {
+            const tbody = document.getElementById('movies-tbody');
+            if (!movies || movies.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400">No movies found.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = movies.map(movie => `
+                <tr class="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors group">
+                    <td class="px-6 py-4">
+                        <div class="w-12 h-16 bg-slate-200 dark:bg-slate-800 rounded-lg bg-cover bg-center shadow-sm"
+                            style="background-image: url('${movie.posterUrl || ''}');">
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex flex-col">
+                            <span class="text-base font-bold text-slate-900 dark:text-white">${escapeHtml(movie.title)}</span>
+                            <span class="text-xs text-slate-500 dark:text-slate-400">${escapeHtml(movie.director || '')} ${movie.releaseDate ? '· ' + movie.releaseDate : ''}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex flex-wrap gap-1">
+                            ${(movie.categories || []).map(cat => `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-slate-200">${escapeHtml(cat)}</span>`).join('')}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 font-medium">${movie.duration} min</td>
+                    <td class="px-6 py-4">${renderStatusBadge(movie.status)}</td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="viewMovieDetail(${movie.id})" class="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all" title="View Detail">
+                                <span class="material-symbols-outlined text-xl">visibility</span>
+                            </button>
+                            <button class="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all" title="Edit">
+                                <span class="material-symbols-outlined text-xl">edit_note</span>
+                            </button>
+                            <button onclick="confirmDelete(${movie.id}, '${escapeHtml(movie.title).replace(/'/g, "\\\\'")}')" class="p-2 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg text-slate-600 dark:text-slate-400 hover:text-red-600 transition-all" title="Delete">
+                                <span class="material-symbols-outlined text-xl">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderStatusBadge(status) {
+            if (status === 'NOWSHOWING') {
+                return `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+                            <span class="size-1.5 rounded-full bg-primary animate-pulse"></span>Now Showing</span>`;
+            }
+            if (status === 'COMINGSOON') {
+                return `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-500/10 text-blue-500 border border-blue-500/20">Coming Soon</span>`;
+            }
+            return `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10">${escapeHtml(status || 'Unknown')}</span>`;
+        }
+
+        function renderPagination(data) {
+            const container = document.getElementById('pagination-info');
+            const buttons = document.getElementById('pagination-buttons');
+            const start = data.pageable.offset + 1;
+            const end = Math.min(data.pageable.offset + data.size, data.totalElements);
+
+            container.innerHTML = `Showing <span class="font-bold text-slate-900 dark:text-white">${data.totalElements === 0 ? 0 : start}</span> to <span class="font-bold text-slate-900 dark:text-white">${end}</span> of <span class="font-bold text-slate-900 dark:text-white">${data.totalElements}</span> movies`;
+
+            let html = '';
+            // Previous button
+            html += `<button onclick="loadMovies(${currentPage - 1})" class="p-2 hover:bg-slate-200 dark:hover:bg-white/10 rounded-lg text-slate-400 disabled:opacity-30 disabled:cursor-not-allowed" ${data.first ? 'disabled' : ''}>
+                        <span class="material-symbols-outlined">chevron_left</span></button>`;
+
+            // Page numbers
+            const totalPages = data.totalPages;
+            const pages = getPageNumbers(currentPage, totalPages);
+            for (const p of pages) {
+                if (p === '...') {
+                    html += '<span class="text-slate-400 px-1">...</span>';
+                } else {
+                    const isActive = p === currentPage;
+                    html += `<button onclick="loadMovies(${p})" class="size-8 flex items-center justify-center rounded-lg text-sm font-medium ${isActive ? 'bg-primary text-white font-bold' : 'hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-slate-400'}">${p}</button>`;
+                }
+            }
+
+            // Next button
+            html += `<button onclick="loadMovies(${currentPage + 1})" class="p-2 hover:bg-slate-200 dark:hover:bg-white/10 rounded-lg text-slate-400 disabled:opacity-30 disabled:cursor-not-allowed" ${data.last ? 'disabled' : ''}>
+                        <span class="material-symbols-outlined">chevron_right</span></button>`;
+
+            buttons.innerHTML = html;
+        }
+
+        function getPageNumbers(current, total) {
+            if (total <= 7) return Array.from({length: total}, (_, i) => i + 1);
+            const pages = [];
+            pages.push(1);
+            if (current > 3) pages.push('...');
+            for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
+                pages.push(i);
+            }
+            if (current < total - 2) pages.push('...');
+            pages.push(total);
+            return pages;
+        }
+
+        function renderStats(data) {
+            const movies = data.content;
+            const total = data.totalElements;
+            document.getElementById('stat-total').textContent = total;
+
+            // Count statuses from current page — for accurate counts we'd need a separate API
+            // For now show page-level counts as approximation
+            let nowShowing = 0, comingSoon = 0, totalRating = 0;
+            movies.forEach(m => {
+                if (m.status === 'NOWSHOWING') nowShowing++;
+                if (m.status === 'COMINGSOON') comingSoon++;
+                totalRating += m.rating || 0;
+            });
+            document.getElementById('stat-now-showing').textContent = nowShowing;
+            document.getElementById('stat-coming-soon').textContent = comingSoon;
+            document.getElementById('stat-avg-rating').textContent = movies.length > 0 ? (totalRating / movies.length).toFixed(1) : '0.0';
+        }
+
+        // ===== View Detail =====
+        async function viewMovieDetail(id) {
+            const modal = document.getElementById('detail-modal');
+            const content = document.getElementById('detail-content');
+            content.innerHTML = '<div class="flex justify-center py-12"><span class="material-symbols-outlined text-4xl text-slate-400 animate-spin">progress_activity</span></div>';
+            modal.classList.remove('hidden');
+
+            try {
+                const res = await fetch(`/api/movies/${id}`);
+                if (!res.ok) throw new Error('Movie not found');
+                const movie = await res.json();
+                content.innerHTML = `
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <!-- Poster -->
+                        <div class="flex-shrink-0">
+                            <div class="w-48 h-72 bg-slate-200 dark:bg-slate-800 rounded-xl bg-cover bg-center shadow-lg"
+                                style="background-image: url('${movie.posterUrl || ''}');">
+                            </div>
+                        </div>
+                        <!-- Info -->
+                        <div class="flex-1 min-w-0">
+                            <h2 class="text-2xl font-black text-slate-900 dark:text-white mb-1">${escapeHtml(movie.title)}</h2>
+                            <div class="flex flex-wrap items-center gap-2 mb-4">
+                                ${renderStatusBadge(movie.status)}
+                                ${movie.featuredMovie ? '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20"><span class="material-symbols-outlined text-sm">star</span>Featured</span>' : ''}
+                            </div>
+                            <p class="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">${escapeHtml(movie.description || 'No description available.')}</p>
+                            <div class="grid grid-cols-2 gap-3 text-sm">
+                                <div>
+                                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Director</span>
+                                    <p class="font-medium text-slate-900 dark:text-white">${escapeHtml(movie.director || '-')}</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Cast</span>
+                                    <p class="font-medium text-slate-900 dark:text-white">${escapeHtml(movie.cast || '-')}</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Duration</span>
+                                    <p class="font-medium text-slate-900 dark:text-white">${movie.duration} min</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Rating</span>
+                                    <p class="font-medium text-slate-900 dark:text-white">${movie.rating}/10</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Release Date</span>
+                                    <p class="font-medium text-slate-900 dark:text-white">${movie.releaseDate || '-'}</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Genres</span>
+                                    <div class="flex flex-wrap gap-1 mt-0.5">
+                                        ${(movie.categories || []).map(cat => `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-slate-200">${escapeHtml(cat)}</span>`).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    ${movie.backdropUrl ? `<div class="mt-6"><span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2 block">Backdrop</span><img src="${movie.backdropUrl}" class="w-full rounded-xl object-cover max-h-48" alt="Backdrop" /></div>` : ''}
+                `;
+            } catch (err) {
+                content.innerHTML = `<p class="text-center text-red-500 py-8">${err.message}</p>`;
+            }
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detail-modal').classList.add('hidden');
+        }
+
+        // ===== Delete =====
+        let deleteTargetId = null;
+
+        function confirmDelete(id, title) {
+            deleteTargetId = id;
+            document.getElementById('delete-movie-title').textContent = title;
+            document.getElementById('delete-modal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            deleteTargetId = null;
+            document.getElementById('delete-modal').classList.add('hidden');
+        }
+
+        async function executeDelete() {
+            if (!deleteTargetId) return;
+            const btn = document.getElementById('delete-confirm-btn');
+            btn.disabled = true;
+            btn.textContent = 'Deleting...';
+
+            try {
+                const res = await fetch(`/api/movies/${deleteTargetId}`, { method: 'DELETE' });
+                if (!res.ok) throw new Error('Failed to delete movie');
+                closeDeleteModal();
+                loadMovies(currentPage);
+            } catch (err) {
+                alert('Delete failed: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Delete';
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
+            // Load movies on page load
+            loadMovies(1);
+
             const form = document.getElementById('add-movie-form');
             if (!form) return;
 
             form.addEventListener('submit', async function (e) {
-                e.preventDefault(); // Chặn submit mặc định (application/x-www-form-urlencoded)
+                e.preventDefault();
 
                 const fd = new FormData(form);
-
-                // Collect categoryIds as number array (checkbox)
                 const categoryIds = fd.getAll('categoryIds').map(Number);
 
                 const payload = {
@@ -103,8 +346,8 @@
                     });
 
                     if (res.ok) {
-                        toggleView(false);      // Quay về danh sách
-                        location.reload();      // Reload để cập nhật bảng phim
+                        toggleView(false);
+                        loadMovies(1);  // Reload table data instead of full page reload
                     } else {
                         const msg = await res.text();
                         alert('Lưu thất bại: ' + msg);
@@ -183,7 +426,7 @@
                         <div>
                             <p class="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider">
                                 Total Movies</p>
-                            <p class="text-xl font-bold">128</p>
+                            <p id="stat-total" class="text-xl font-bold">-</p>
                         </div>
                     </div>
                     <div
@@ -194,7 +437,7 @@
                         <div>
                             <p class="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider">
                                 Now Showing</p>
-                            <p class="text-xl font-bold">12</p>
+                            <p id="stat-now-showing" class="text-xl font-bold">-</p>
                         </div>
                     </div>
                     <div
@@ -205,7 +448,7 @@
                         <div>
                             <p class="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider">
                                 Coming Soon</p>
-                            <p class="text-xl font-bold">24</p>
+                            <p id="stat-coming-soon" class="text-xl font-bold">-</p>
                         </div>
                     </div>
                     <div
@@ -216,7 +459,7 @@
                         <div>
                             <p class="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider">
                                 Avg Rating</p>
-                            <p class="text-xl font-bold">8.4</p>
+                            <p id="stat-avg-rating" class="text-xl font-bold">-</p>
                         </div>
                     </div>
                 </div>
@@ -247,206 +490,18 @@
                                         Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-200 dark:divide-white/10">
-                                <!-- Row 1 -->
-                                <tr class="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors group">
-                                    <td class="px-6 py-4">
-                                        <div class="w-12 h-16 bg-slate-200 dark:bg-slate-800 rounded-lg bg-cover bg-center shadow-sm"
-                                            data-alt="Movie poster for Dune: Part Two"
-                                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCWO_qoaIIC7c8X_WfE-QGXLOt7_6VFwFiX4LpZPOlSP6014LaM4kD4HCw0kVAz95Hgx1KJsouEl0LrEzerguDs8nOqqKjsQuxmnJtKctQHa5oDmnDHDGxNZQAv8THLBxvYGMEnagUjwFj4fiYmNKsW7_bwR0GiosinAbO-WIg5Dq7mWdR2bEwa85mwhmX7PoEeA9Sib_iDQTM-VtU4vcQ_ObMWH2RkFbRox7xN25-resOpvZAOutyLROQKEFSbgmf5aNe2kPPJvdxW');">
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex flex-col">
-                                            <span class="text-base font-bold text-slate-900 dark:text-white">Dune: Part
-                                                Two</span>
-                                            <span class="text-xs text-slate-500 dark:text-slate-400">ID:
-                                                CB-2024-001</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span
-                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-slate-200">Sci-Fi</span>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 font-medium">166 min
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span
-                                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
-                                            <span class="size-1.5 rounded-full bg-primary animate-pulse"></span>
-                                            Now Showing
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-right">
-                                        <div
-                                            class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button
-                                                class="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all">
-                                                <span class="material-symbols-outlined text-xl">edit_note</span>
-                                            </button>
-                                            <button
-                                                class="p-2 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg text-slate-600 dark:text-slate-400 hover:text-red-600 transition-all">
-                                                <span class="material-symbols-outlined text-xl">delete</span>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <!-- Row 2 -->
-                                <tr class="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors group">
-                                    <td class="px-6 py-4">
-                                        <div class="w-12 h-16 bg-slate-200 dark:bg-slate-800 rounded-lg bg-cover bg-center shadow-sm"
-                                            data-alt="Movie poster for Oppenheimer"
-                                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBFmwJziJKofVytmAKpiZ42_hhTWsIil6IB11REIEPjUwA3ULokUTuKUTsylCWE_BtdmAq8bx4nTFrFRObnX5clJesKkUbdQXX6NBOlOeAR3Uv_9jhvmojQsTdHscRyJBQsH1O0GMvoSY2hxypXhWmakqFY_p0ctj2L5vcBchdKTNHFAmezYJvcq-Xc_drjk4GHU36kRT0ujBrDx6TXuSgXx2nI01bndTRVzgPd18Dcj7EPOMhvRFPC9S3o_9fBMWx2-lpubXXmfrAd');">
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex flex-col">
-                                            <span
-                                                class="text-base font-bold text-slate-900 dark:text-white">Oppenheimer</span>
-                                            <span class="text-xs text-slate-500 dark:text-slate-400">ID:
-                                                CB-2024-002</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span
-                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-slate-200">Drama</span>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 font-medium">180 min
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span
-                                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-500/10 text-blue-500 border border-blue-500/20">
-                                            Coming Soon
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-right">
-                                        <div
-                                            class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button
-                                                class="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all">
-                                                <span class="material-symbols-outlined text-xl">edit_note</span>
-                                            </button>
-                                            <button
-                                                class="p-2 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg text-slate-600 dark:text-slate-400 hover:text-red-600 transition-all">
-                                                <span class="material-symbols-outlined text-xl">delete</span>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <!-- Row 3 -->
-                                <tr class="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors group">
-                                    <td class="px-6 py-4">
-                                        <div class="w-12 h-16 bg-slate-200 dark:bg-slate-800 rounded-lg bg-cover bg-center shadow-sm"
-                                            data-alt="Movie poster for Inception"
-                                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCQNLRaBr_OnLQrAKZSYMLgX-ig6tq0u3Yft4uLex-_L0lQ_BDGD46UxSplaOc6zF3vXWrTpxN8BJK3W9ZqPrJeZpCX3mFftVaGj1td78BtV1MY7DBn37GqLLDN1J6hgrnMvD5-4xcWL7anAjPl26GVNICmxbIAKkTuILXR5g5yntOKBD8Wz0RuvzvTyJAFcDs3Iv-l-YS2zcgoIl8br2C1JzSsn__WS1a1IyeEHNYgo7Vly6E47YsulAy5A5LZAX_Jy5bU2wjJrkm2');">
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex flex-col">
-                                            <span
-                                                class="text-base font-bold text-slate-900 dark:text-white">Inception</span>
-                                            <span class="text-xs text-slate-500 dark:text-slate-400">ID:
-                                                CB-2010-042</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span
-                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-slate-200">Sci-Fi</span>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 font-medium">148 min
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span
-                                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
-                                            <span class="size-1.5 rounded-full bg-primary"></span>
-                                            Now Showing
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-right">
-                                        <div
-                                            class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button
-                                                class="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all">
-                                                <span class="material-symbols-outlined text-xl">edit_note</span>
-                                            </button>
-                                            <button
-                                                class="p-2 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg text-slate-600 dark:text-slate-400 hover:text-red-600 transition-all">
-                                                <span class="material-symbols-outlined text-xl">delete</span>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <!-- Row 4 -->
-                                <tr class="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors group">
-                                    <td class="px-6 py-4">
-                                        <div class="w-12 h-16 bg-slate-200 dark:bg-slate-800 rounded-lg bg-cover bg-center shadow-sm"
-                                            data-alt="Movie poster for Interstellar"
-                                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBtuoGR5Sl1qUmvQI07zNoTyuBb6XHvUORoVSzHNTgmQCKKIponNNWpLIdYolpv4bS4OMbMga-NqTdbFFagl6Ljc-SpAAN4nmzL05u7Meo6uuLkGtRdMQLj98JrJTif7Xp6BWd5l6aN0ATtgeOuxj0w1opr9Le_wDdDya4HxLlW6vVcBz6hNo-PvOAvVUXqESpH7IhHQDfjM6mhM7sAStKynmZ_RuQL7MHG1XvpH2i92OAeCbPzRqt0RCiHW419auxJejlQAAD97fFQ');">
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex flex-col">
-                                            <span
-                                                class="text-base font-bold text-slate-900 dark:text-white">Interstellar</span>
-                                            <span class="text-xs text-slate-500 dark:text-slate-400">ID:
-                                                CB-2014-088</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span
-                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-slate-200">Adventure</span>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 font-medium">169 min
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span
-                                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10">
-                                            Archived
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-right">
-                                        <div
-                                            class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button
-                                                class="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all">
-                                                <span class="material-symbols-outlined text-xl">edit_note</span>
-                                            </button>
-                                            <button
-                                                class="p-2 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg text-slate-600 dark:text-slate-400 hover:text-red-600 transition-all">
-                                                <span class="material-symbols-outlined text-xl">delete</span>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
+                            <tbody id="movies-tbody" class="divide-y divide-slate-200 dark:divide-white/10">
+                                <tr><td colspan="6" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400">Loading movies...</td></tr>
                             </tbody>
                         </table>
                     </div>
                     <!-- Pagination Component -->
                     <div
                         class="flex flex-col sm:flex-row items-center justify-between px-6 py-4 bg-slate-50 dark:bg-white/5 border-t border-slate-200 dark:border-white/10 gap-4">
-                        <p class="text-sm text-slate-500 dark:text-slate-400">
-                            Showing <span class="font-bold text-slate-900 dark:text-white">1</span> to <span
-                                class="font-bold text-slate-900 dark:text-white">10</span> of <span
-                                class="font-bold text-slate-900 dark:text-white">128</span> movies
+                        <p id="pagination-info" class="text-sm text-slate-500 dark:text-slate-400">
+                            Loading...
                         </p>
-                        <div class="flex items-center gap-1">
-                            <button
-                                class="p-2 hover:bg-slate-200 dark:hover:bg-white/10 rounded-lg text-slate-400 disabled:opacity-30 disabled:cursor-not-allowed"
-                                disabled="">
-                                <span class="material-symbols-outlined">chevron_left</span>
-                            </button>
-                            <button
-                                class="size-8 flex items-center justify-center rounded-lg bg-primary text-white font-bold text-sm">1</button>
-                            <button
-                                class="size-8 flex items-center justify-center rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-slate-400 font-medium text-sm">2</button>
-                            <button
-                                class="size-8 flex items-center justify-center rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-slate-400 font-medium text-sm">3</button>
-                            <span class="text-slate-400 px-1">...</span>
-                            <button
-                                class="size-8 flex items-center justify-center rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-slate-400 font-medium text-sm">13</button>
-                            <button class="p-2 hover:bg-slate-200 dark:hover:bg-white/10 rounded-lg text-slate-400">
-                                <span class="material-symbols-outlined">chevron_right</span>
-                            </button>
+                        <div id="pagination-buttons" class="flex items-center gap-1">
                         </div>
                     </div>
                 </div>
@@ -706,11 +761,44 @@
                 <span class="material-symbols-outlined text-3xl">add</span>
             </button>
         </div>
-        <!-- Footer Footer -->
+        <!-- Footer -->
         <footer class="mt-auto py-6 border-t border-slate-200 dark:border-white/10 text-center">
             <p class="text-sm text-slate-500 dark:text-slate-400">© 2024 CineBox Entertainment Systems. Admin Portal
                 v2.4.1</p>
         </footer>
+    </div>
+
+    <!-- Movie Detail Modal -->
+    <div id="detail-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeDetailModal()"></div>
+        <div class="relative bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-y-auto border border-slate-200 dark:border-white/10">
+            <div class="sticky top-0 flex items-center justify-between p-4 border-b border-slate-200 dark:border-white/10 bg-white dark:bg-[#1a1a1a] rounded-t-2xl z-10">
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white">Movie Details</h3>
+                <button onclick="closeDetailModal()" class="p-1.5 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-all">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div id="detail-content" class="p-6"></div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
+        <div class="relative bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-2xl w-full max-w-md border border-slate-200 dark:border-white/10 p-6">
+            <div class="flex flex-col items-center text-center">
+                <div class="size-14 rounded-full bg-red-100 dark:bg-red-500/10 flex items-center justify-center mb-4">
+                    <span class="material-symbols-outlined text-3xl text-red-600">warning</span>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Delete Movie</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-1">Are you sure you want to delete</p>
+                <p class="text-sm font-bold text-slate-900 dark:text-white mb-6" id="delete-movie-title"></p>
+                <div class="flex items-center gap-3 w-full">
+                    <button onclick="closeDeleteModal()" class="flex-1 px-4 py-2.5 rounded-lg text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 transition-all">Cancel</button>
+                    <button id="delete-confirm-btn" onclick="executeDelete()" class="flex-1 px-4 py-2.5 rounded-lg text-sm font-bold text-white bg-red-600 hover:bg-red-700 transition-all">Delete</button>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 
