@@ -1,5 +1,6 @@
 package com.phat.cinebox.service;
 
+import com.phat.cinebox.dto.request.MovieRequest;
 import com.phat.cinebox.dto.response.MovieResponse;
 import com.phat.cinebox.model.Category;
 import com.phat.cinebox.model.Movie;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,6 +51,44 @@ public class MovieService {
     @Transactional
     public Long deleteMovie(Long id){
         return movieRepository.removeById(id);
+    }
+
+    @Transactional
+    public MovieResponse updateMovie(Long id, MovieRequest movieRequest){
+        Optional<Movie> movieOptional = movieRepository.findById(id);
+        if (movieOptional.isPresent()){
+            Movie movie = movieOptional.get();
+            applyMovieRequest(movie, movieRequest);
+            movieRepository.save(movie);
+            return movieMapping(movie);
+        }
+        else
+            return null;
+    }
+
+    private void applyMovieRequest(Movie movie, MovieRequest movieRequest){
+        if (movie == null || movieRequest == null){
+            return;
+        }
+        movie.setTitle(movieRequest.getTitle());
+        movie.setDescription(movieRequest.getDescription());
+        movie.setRating(movieRequest.getRating());
+        movie.setReleaseDate(movieRequest.getReleaseDate());
+        movie.setFeaturedMovie(movieRequest.isFeaturedMovie());
+        movie.setCast(movieRequest.getCast());
+        movie.setDirector(movieRequest.getDirector());
+        HashSet<Category> categories = new HashSet<>();
+        for (Long categoryId : movieRequest.getCategoryIds()) {
+            Optional<Category> category = this.categoryRepository.findById(categoryId);
+            if (category.isPresent())
+                categories.add(category.get());
+        }
+        movie.setCategories(categories);
+        movie.setDuration(movieRequest.getDuration());
+        movie.setBackdropUrl(movieRequest.getBackdropUrl());
+        movie.setPosterUrl(movieRequest.getPosterUrl());
+        movie.setStatus(movieRequest.getStatus());
+        movie.setTrailerUrl(movieRequest.getTrailerUrl());
     }
 
     private MovieResponse movieMapping(Movie movie){

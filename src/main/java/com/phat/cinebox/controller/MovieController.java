@@ -1,5 +1,6 @@
 package com.phat.cinebox.controller;
 
+import com.phat.cinebox.dto.request.MovieRequest;
 import com.phat.cinebox.dto.response.MovieResponse;
 import com.phat.cinebox.service.MovieService;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,15 @@ public class MovieController {
     @GetMapping("/api/movies/{id}")
     public ResponseEntity<?> getMovieDetail(@PathVariable Long id){
         MovieResponse movie = movieService.getMovieDetail(id);
+        if (movie == null){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().body(movie);
+    }
+
+    @PutMapping("/api/movies/{id}")
+    public ResponseEntity<?> updateMovie(@PathVariable Long id, @RequestBody MovieRequest movieRequest){
+        MovieResponse movie = movieService.updateMovie(id, movieRequest);
         if (movie == null){
             return ResponseEntity.notFound().build();
         }

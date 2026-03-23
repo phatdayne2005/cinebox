@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Controller
@@ -40,7 +41,9 @@ public class AdminController {
         try {
             Set<Category> categories = new HashSet<>();
             for (Long id:movieRequest.getCategoryIds()) {
-                categories.add(this.categoryRepository.findById(id));
+                Optional<Category> category = this.categoryRepository.findById(id);
+                if (category.isPresent())
+                    categories.add(category.get());
             }
             Movie movie = new Movie();
             movie.setCategories(categories);

@@ -53,21 +53,33 @@
     <script>
         let currentPage = 1;
         const pageSize = 10;
+        let editingMovieId = null; // null = create mode, number = edit mode
 
-        function toggleView(showCreate) {
+        function toggleView(showForm, isEdit = false) {
             const listView = document.getElementById('movies-list-view');
-            const createView = document.getElementById('create-movie-view');
+            const formView = document.getElementById('create-movie-view');
             const fab = document.getElementById('fab-add-movie');
 
-            if (showCreate) {
+            if (showForm) {
                 listView.classList.add('hidden');
-                createView.classList.remove('hidden');
+                formView.classList.remove('hidden');
                 if (fab) fab.classList.add('hidden');
             } else {
                 listView.classList.remove('hidden');
-                createView.classList.add('hidden');
+                formView.classList.add('hidden');
                 if (fab) fab.classList.remove('hidden');
+                // Reset to create mode when closing
+                editingMovieId = null;
+                updateFormMode();
+                document.getElementById('add-movie-form').reset();
             }
+        }
+
+        function updateFormMode() {
+            const isEdit = editingMovieId !== null;
+            document.getElementById('form-breadcrumb-text').textContent = isEdit ? 'Edit Movie' : 'Add New Movie';
+            document.getElementById('form-heading').textContent = isEdit ? 'Edit Movie' : 'Add New Movie';
+            document.getElementById('form-submit-text').textContent = isEdit ? 'Update Movie' : 'Save Movie';
         }
 
         async function loadMovies(page = 1) {
@@ -116,7 +128,7 @@
                             <button onclick="viewMovieDetail(${movie.id})" class="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all" title="View Detail">
                                 <span class="material-symbols-outlined text-xl">visibility</span>
                             </button>
-                            <button class="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all" title="Edit">
+                            <button onclick="editMovie(${movie.id})" class="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-all" title="Edit">
                                 <span class="material-symbols-outlined text-xl">edit_note</span>
                             </button>
                             <button onclick="confirmDelete(${movie.id}, '${escapeHtml(movie.title).replace(/'/g, "\\\\'")}')" class="p-2 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg text-slate-600 dark:text-slate-400 hover:text-red-600 transition-all" title="Delete">
@@ -200,6 +212,55 @@
             document.getElementById('stat-now-showing').textContent = nowShowing;
             document.getElementById('stat-coming-soon').textContent = comingSoon;
             document.getElementById('stat-avg-rating').textContent = movies.length > 0 ? (totalRating / movies.length).toFixed(1) : '0.0';
+        }
+
+        // ===== Edit Movie =====
+        async function editMovie(id) {
+            try {
+                const res = await fetch(`/api/movies/${id}`);
+                if (!res.ok) throw new Error('Movie not found');
+                const movie = await res.json();
+
+                editingMovieId = id;
+                updateFormMode();
+
+                // Populate form fields
+                const form = document.getElementById('add-movie-form');
+                form.querySelector('[name="title"]').value = movie.title || '';
+                form.querySelector('[name="description"]').value = movie.description || '';
+                form.querySelector('[name="duration"]').value = movie.duration || '';
+                form.querySelector('[name="releaseDate"]').value = movie.releaseDate || '';
+                form.querySelector('[name="rating"]').value = movie.rating || '';
+                form.querySelector('[name="director"]').value = movie.director || '';
+                form.querySelector('[name="cast"]').value = movie.cast || '';
+                form.querySelector('[name="posterUrl"]').value = movie.posterUrl || '';
+                form.querySelector('[name="backdropUrl"]').value = movie.backdropUrl || '';
+                form.querySelector('[name="trailerUrl"]').value = movie.trailerUrl || '';
+
+                // Status radio buttons
+                const statusRadios = form.querySelectorAll('[name="status"]');
+                statusRadios.forEach(radio => {
+                    radio.checked = radio.value === movie.status;
+                });
+
+                // Featured movie toggle
+                const featuredToggle = form.querySelector('[name="featuredMovie"]');
+                if (featuredToggle) featuredToggle.checked = movie.featuredMovie;
+
+                // Category checkboxes — match by category name displayed in span
+                const categoryCheckboxes = form.querySelectorAll('[name="categoryIds"]');
+                const movieCategories = movie.categories || [];
+                categoryCheckboxes.forEach(cb => {
+                    const label = cb.closest('label');
+                    const span = label ? label.querySelector('span') : null;
+                    const catName = span ? span.textContent.trim() : '';
+                    cb.checked = movieCategories.includes(catName);
+                });
+
+                toggleView(true, true);
+            } catch (err) {
+                alert('Failed to load movie: ' + err.message);
+            }
         }
 
         // ===== View Detail =====
@@ -339,15 +400,19 @@
                 };
 
                 try {
-                    const res = await fetch(form.action, {
-                        method: 'POST',
+                    const isEdit = editingMovieId !== null;
+                    const url = isEdit ? `/api/movies/${editingMovieId}` : form.action;
+                    const method = isEdit ? 'PUT' : 'POST';
+
+                    const res = await fetch(url, {
+                        method: method,
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
 
                     if (res.ok) {
                         toggleView(false);
-                        loadMovies(1);  // Reload table data instead of full page reload
+                        loadMovies(isEdit ? currentPage : 1);
                     } else {
                         const msg = await res.text();
                         alert('Lưu thất bại: ' + msg);
@@ -513,17 +578,17 @@
                         <a class="hover:text-primary transition-colors" href="#"
                             onclick="toggleView(false); return false;">Movies</a>
                         <span class="material-symbols-outlined text-sm">chevron_right</span>
-                        <span class="text-slate-900 dark:text-white">Add New Movie</span>
+                        <span id="form-breadcrumb-text" class="text-slate-900 dark:text-white">Add New Movie</span>
                     </nav>
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Add New Movie</h1>
+                        <h1 id="form-heading" class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Add New Movie</h1>
                         <div class="flex items-center gap-3">
                             <button onclick="toggleView(false)"
                                 class="px-5 py-2.5 rounded-lg text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-white/10 transition-all">Cancel</button>
                             <button type="submit" form="add-movie-form"
                                 class="flex items-center gap-2 bg-primary hover:bg-red-700 text-white px-6 py-2.5 rounded-lg text-sm font-bold transition-all shadow-lg shadow-primary/20">
                                 <span class="material-symbols-outlined text-lg">save</span>
-                                <span>Save Movie</span>
+                                <span id="form-submit-text">Save Movie</span>
                             </button>
                         </div>
                     </div>
